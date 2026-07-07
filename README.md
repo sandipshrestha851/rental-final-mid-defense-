@@ -129,3 +129,4 @@ REST:
 Socket.IO (auth via `{ token }` handshake):
 - Client → server: `send_message` `{ token, receiver_id, message }`, `typing` `{ token, receiver_id, is_typing }`
 - Server → client: `new_message`, `user_status` `{ user_id, status }`, `user_typing` `{ sender_id, is_typing }`, `error`
+"# room_rental" 
