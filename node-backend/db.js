@@ -2,6 +2,8 @@
 // MySQL connection pool + schema initialization (XAMPP friendly).
 
 const mysql = require("mysql2/promise");
+const bcrypt = require("bcryptjs");
+
 
 const DB_HOST = process.env.DB_HOST || "127.0.0.1";
 const DB_PORT = parseInt(process.env.DB_PORT || "3306", 10);
@@ -68,6 +70,25 @@ async function initDb() {
       FOREIGN KEY (receiver_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS admin (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(100) UNIQUE NOT NULL,
+      password VARCHAR(255) NOT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `);
+
+  // Seed default admin if no admin accounts exist
+  const [admins] = await pool.query("SELECT id FROM admin LIMIT 1");
+  if (admins.length === 0) {
+    const defaultPasswordHash = await bcrypt.hash("admin123", 10);
+    await pool.query(
+      "INSERT INTO admin (username, password) VALUES (?, ?)",
+      ["admin", defaultPasswordHash]
+    );
+    console.log("Seeded default admin account (username: admin)");
+  }
 
   console.log("Database schema initialized successfully.");
 }

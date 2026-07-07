@@ -197,11 +197,58 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
+// Admin Login — authenticate with username + password from admin table.
+app.post("/api/admin/login", async (req, res) => {
+  const data = req.body || {};
+  const username = data.username ? String(data.username).trim() : "";
+  const password = data.password ? String(data.password) : "";
+
+  if (!username || !password) {
+    return res.status(400).json({ message: "Missing username or password" });
+  }
+
+  try {
+    const [rows] = await pool.query("SELECT * FROM admin WHERE username = ?", [
+      username,
+    ]);
+    const admin = rows[0];
+
+    if (!admin || !(await bcrypt.compare(password, admin.password))) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Generate token with role: "admin"
+    const token = jwt.sign(
+      {
+        user_id: admin.id,
+        email: `${admin.username}@admin.local`,
+        full_name: "System Admin",
+        role: "admin",
+      },
+      JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    return res.status(200).json({
+      token,
+      user: {
+        id: admin.id,
+        full_name: "System Admin",
+        email: `${admin.username}@admin.local`,
+        role: "admin",
+      },
+    });
+  } catch (err) {
+    return res.status(500).json({ message: `Server error: ${err.message}` });
+  }
+});
+
+
 // List all users (except current), with online status.
 app.get("/api/users", tokenRequired, async (req, res) => {
   try {
     const [users] = await pool.query(
-      `SELECT id, full_name, email, phone, gender, bio, created_at
+      `SELECT id, full_name, email, phone, gender, bio, role, created_at
        FROM users
        WHERE id != ?
        ORDER BY full_name ASC`,
@@ -215,6 +262,7 @@ app.get("/api/users", tokenRequired, async (req, res) => {
       phone: u.phone,
       gender: u.gender,
       bio: u.bio,
+      role: u.role,
       created_at: u.created_at ? new Date(u.created_at).toISOString() : null,
       is_online: isOnline(u.id),
     }));
