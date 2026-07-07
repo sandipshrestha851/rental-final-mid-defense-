@@ -9,6 +9,7 @@ export interface User {
   gender?: string | null;
   date_of_birth?: string | null;
   bio?: string | null;
+  role?: string | null;
   is_online?: boolean;
   created_at?: string | null;
 }

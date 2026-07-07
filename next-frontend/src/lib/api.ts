@@ -76,6 +76,13 @@ export const api = {
     });
   },
 
+  adminLogin(payload: { username: string; password: string }): Promise<LoginResponse> {
+    return request<LoginResponse>("/api/admin/login", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  },
+
   getUsers(token: string): Promise<User[]> {
     return request<User[]>("/api/users", {
       headers: authHeaders(token),
