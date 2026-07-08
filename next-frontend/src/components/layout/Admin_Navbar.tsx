@@ -104,7 +104,6 @@ const Admin_Navbar = ({ navto, setNavto }: SideNavbarProps) => {
             <span>Logout</span>
           </button>
         </div>
-
       </nav>
     </div>
   );
