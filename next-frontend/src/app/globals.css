@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  /* Light theme used by the RentNest rental pages.
+     The chat pages under /chat set their own dark backgrounds. */
+  --background: hsl(250deg 100% 97.65%);
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #c7c2e6 transparent;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}

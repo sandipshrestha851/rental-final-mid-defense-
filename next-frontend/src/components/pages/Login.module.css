@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.loginPage {
+    --primary: #5E35B1;
+    --primary-light: #EDE7F6;
+    --white: #FFFFFF;
+    --bg: #FAFAFA;
+    --gray: #EEEEEE;
+    --text: #212121;
+    --text-secondary: #757575;
+
+    background: #f5f3ff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.loginPage * {
+    box-sizing: border-box;
+}
+
+.loginContainer {
+    width: 100%;
+    max-width: 420px;
+    background: var(--white);
+    border-radius: 25px;
+    padding: 40px 30px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+}
+
+.logo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.logoIcon {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    font-size: 35px;
+}
+
+.logo h2 {
+    color: var(--primary);
+    margin-top: 15px;
+}
+
+.logo p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.inputGroup {
+    margin-bottom: 18px;
+}
+
+.inputGroup label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-weight: 500;
+}
+
+.inputGroup input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid var(--gray);
+    border-radius: 12px;
+    font-size: 15px;
+    outline: none;
+    transition: 0.3s;
+}
+
+.inputGroup input:focus {
+    border-color: var(--primary);
+}
+
+.passwordContainer {
+    position: relative;
+}
+
+.passwordContainer span {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.options a {
+    text-decoration: none;
+    color: var(--primary);
+}
+
+.loginBtn {
+    width: 100%;
+    padding: 15px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.loginBtn:hover {
+    background: #4A2C91;
+}
+
+.register {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--text-secondary);
+}
+
+.register a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@media (max-width: 480px) {
+    .loginContainer {
+        padding: 30px 20px;
+    }
+
+    .logoIcon {
+        width: 70px;
+        height: 70px;
+        font-size: 30px;
+    }
+}
