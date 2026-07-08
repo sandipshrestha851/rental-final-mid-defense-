@@ -10,7 +10,7 @@ import { useRouter } from "next/navigation";
 import { DashboardMain } from "@/components/organisms/dashboard/DashboardMain";
 import { ChatApp } from "@/components/organisms/chat/ChatApp";
 
-const LandLordPage = () => {
+const AdminPage = () => {
   const [navto, setNavto] = useState<string>("dashboard")
   const router = useRouter()
   return (
@@ -19,14 +19,14 @@ const LandLordPage = () => {
         navto={navto}
         setNavto={setNavto}
       />
-      <main className={`${navto == "messages" ? "bg-[#0f0f1a]" : ""} ml-[15%] w-[85%] h-screen p-4`}>
-        {navto == "dashboard" && <DashboardMain navto={navto} />}
+      <main className={`ml-[15%] w-[85%] h-screen p-4`}>
+        {navto == "dashboard" && <AdminDashboard/>}
         {navto == "users" && <DashboardMain navto={navto} />}
-        {navto == "properties" && <Reservations />}
-        {navto == "bookies" && <DashboardMain navto={navto} />}
+        {navto == "properties" && <DashboardMain navto={navto}/>}
+        {navto == "bookings" && <DashboardMain navto={navto} />}
       </main>
     </div>
   )
 }
 
-export default LandLordPage
+export default AdminPage;

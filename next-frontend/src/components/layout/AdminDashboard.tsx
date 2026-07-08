@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import type { User } from "@/lib/types";
-import Admin_Navbar from "./Admin_Navbar";
 import { ChatApp } from "@/components/organisms/chat/ChatApp";
 import {
   Users,
@@ -85,6 +84,7 @@ const AdminDashboard = () => {
       setLoadingUsers(true);
       api.getUsers(token)
         .then((data) => {
+          console.log(data)
           setUsers(data);
           addToast("Dashboard analytics synchronized.", "success");
         })
@@ -102,6 +102,7 @@ const AdminDashboard = () => {
   const totalUsers = users.length;
   const landlordsCount = users.filter((u) => u.role === "landlord").length;
   const tenantsCount = users.filter((u) => u.role === "tenant").length;
+  
 
   // Actual total values mapping the dashboard screenshot metrics
   const totalPropertiesCount = 20; // 20 properties
@@ -122,7 +123,7 @@ const AdminDashboard = () => {
     { month: "Nov", amount: 108000, label: "$108k" },
     { month: "Dec", amount: 118000, label: "$118k" }
   ];
-  
+
   const chartHeight = 200;
   const chartWidth = 560;
   const chartPaddingLeft = 45;
@@ -153,7 +154,7 @@ const AdminDashboard = () => {
   // Donut chart calculations (default matching user's screenshot breakdown)
   const tenantsCountVal = totalUsers > 0 ? tenantsCount : 4;
   const landlordsCountVal = totalUsers > 0 ? landlordsCount : 4;
-  const adminsCountVal = 2; // 2 admins in screenshot
+  const adminsCountVal = 1; // 2 admins in screenshot
   const totalDonutCount = tenantsCountVal + landlordsCountVal + adminsCountVal;
 
   const donutCategories = [
@@ -179,19 +180,17 @@ const AdminDashboard = () => {
 
   return (
     <div className={`flex min-h-screen ${darkMode ? "dark bg-[#0f0f1a] text-slate-100" : "bg-[#f5f3ff] text-slate-800"} transition-colors duration-300`}>
-      
       {/* Toast Notification Container */}
       <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm pointer-events-none">
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`flex items-center gap-3 p-4 rounded-xl shadow-lg pointer-events-auto border animate-slideIn ${
-              toast.type === "success"
+            className={`flex items-center gap-3 p-4 rounded-xl shadow-lg pointer-events-auto border animate-slideIn ${toast.type === "success"
                 ? "bg-emerald-500 text-white border-emerald-400"
                 : toast.type === "error"
-                ? "bg-red-500 text-white border-red-400"
-                : "bg-indigo-600 text-white border-indigo-500"
-            }`}
+                  ? "bg-red-500 text-white border-red-400"
+                  : "bg-indigo-600 text-white border-indigo-500"
+              }`}
           >
             {toast.type === "success" && <CheckCircle2 className="w-5 h-5 shrink-0" />}
             {toast.type === "error" && <XCircle className="w-5 h-5 shrink-0" />}
@@ -202,12 +201,12 @@ const AdminDashboard = () => {
       </div>
 
       {/* Right Content Main Container */}
-      <main className={`${navto === "messages" ? "bg-[#0f0f1a]" : ""} ml-[15%] w-[85%] min-h-screen p-6 overflow-y-auto`}>
-        
-        {/* TAB 1: DASHBOARD VIEW */}
+      <main className={`${navto === "messages" ? "bg-[#0f0f1a]" : ""
+        } flex-1 min-h-screen p-6 overflow-y-auto`}>
+
         {navto === "dashboard" && (
           <div className="space-y-6 animate-fadeIn text-left">
-            
+
             {/* Top Navigation / Breadcrumbs Header */}
             <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
               <div>
@@ -220,7 +219,7 @@ const AdminDashboard = () => {
 
               {/* Right widgets header */}
               <div className="flex flex-wrap items-center gap-3 ml-auto sm:ml-0">
-                
+
                 {/* Search Bar placeholder */}
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
@@ -229,11 +228,10 @@ const AdminDashboard = () => {
                   <input
                     type="text"
                     placeholder="Search properties, bookings..."
-                    className={`pl-9 pr-4 py-2 border rounded-xl text-sm outline-none transition-colors w-48 sm:w-60 ${
-                      darkMode
+                    className={`pl-9 pr-4 py-2 border rounded-xl text-sm outline-none transition-colors w-48 sm:w-60 ${darkMode
                         ? "bg-slate-900 border-slate-700 text-white focus:border-violet-500"
                         : "bg-white border-slate-200 text-slate-700 focus:border-violet-500"
-                    }`}
+                      }`}
                   />
                 </div>
 
@@ -243,9 +241,8 @@ const AdminDashboard = () => {
                     setDarkMode(!darkMode);
                     addToast(`Theme style toggled`, "info");
                   }}
-                  className={`p-2 rounded-lg cursor-pointer transition-colors ${
-                    darkMode ? "hover:bg-slate-800 text-amber-400" : "hover:bg-slate-100 text-slate-500"
-                  }`}
+                  className={`p-2 rounded-lg cursor-pointer transition-colors ${darkMode ? "hover:bg-slate-800 text-amber-400" : "hover:bg-slate-100 text-slate-500"
+                    }`}
                   title="Toggle Light/Dark Theme"
                 >
                   {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -255,9 +252,8 @@ const AdminDashboard = () => {
                 <div className="relative">
                   <button
                     onClick={() => setNotificationsOpen(!notificationsOpen)}
-                    className={`p-2 rounded-xl border relative cursor-pointer transition-colors ${
-                      darkMode ? "bg-slate-800/40 border-slate-700 text-slate-300 hover:bg-slate-700/50" : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
-                    }`}
+                    className={`p-2 rounded-xl border relative cursor-pointer transition-colors ${darkMode ? "bg-slate-800/40 border-slate-700 text-slate-300 hover:bg-slate-700/50" : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
+                      }`}
                   >
                     <Bell className="w-5 h-5" />
                     {notifications.some(n => !n.read) && (
@@ -268,9 +264,8 @@ const AdminDashboard = () => {
                   {notificationsOpen && (
                     <>
                       <div className="fixed inset-0 z-30" onClick={() => setNotificationsOpen(false)}></div>
-                      <div className={`absolute right-0 mt-3 w-80 rounded-2xl shadow-2xl border p-4 z-40 animate-fadeIn ${
-                        darkMode ? "bg-[#16162d] border-slate-800 text-white" : "bg-white border-slate-100 text-slate-800"
-                      }`}>
+                      <div className={`absolute right-0 mt-3 w-80 rounded-2xl shadow-2xl border p-4 z-40 animate-fadeIn ${darkMode ? "bg-[#16162d] border-slate-800 text-white" : "bg-white border-slate-100 text-slate-800"
+                        }`}>
                         <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
                           <h4 className="text-xs font-black uppercase tracking-wider">Notifications</h4>
                           <button
@@ -287,13 +282,12 @@ const AdminDashboard = () => {
                           {notifications.map(n => (
                             <div
                               key={n.id}
-                              className={`p-2.5 rounded-lg text-left text-sm border ${
-                                n.read
+                              className={`p-2.5 rounded-lg text-left text-sm border ${n.read
                                   ? "bg-transparent border-transparent text-slate-400"
                                   : darkMode
-                                  ? "bg-slate-800/40 border-slate-800 text-slate-200"
-                                  : "bg-slate-50 border-slate-100 text-slate-800"
-                              }`}
+                                    ? "bg-slate-800/40 border-slate-800 text-slate-200"
+                                    : "bg-slate-50 border-slate-100 text-slate-800"
+                                }`}
                             >
                               <p className="font-semibold">{n.text}</p>
                               <span className="text-[11px] text-slate-400 mt-1 block">{n.time}</span>
@@ -315,7 +309,7 @@ const AdminDashboard = () => {
 
             {/* Metrics cards row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              
+
               {/* Total Users */}
               <div className="p-6 rounded-2xl bg-blue-600 text-white shadow-lg flex items-center justify-between hover:scale-[1.02] transition-transform duration-200">
                 <div className="space-y-2">
@@ -368,11 +362,10 @@ const AdminDashboard = () => {
 
             {/* Interactive SVG Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
+
               {/* Revenue area curve chart (Col Span 2) */}
-              <div className={`p-6 rounded-2xl border relative flex flex-col justify-between lg:col-span-2 ${
-                darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.015)]"
-              }`}>
+              <div className={`p-6 rounded-2xl border relative flex flex-col justify-between lg:col-span-2 ${darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.015)]"
+                }`}>
                 <div>
                   <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">Platform Revenue</h4>
                   <p className={`text-xs font-medium mt-0.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Interactive monthly billing summary</p>
@@ -506,9 +499,8 @@ const AdminDashboard = () => {
               </div>
 
               {/* User distribution donut chart */}
-              <div className={`p-6 rounded-2xl border flex flex-col justify-between ${
-                darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)]"
-              }`}>
+              <div className={`p-6 rounded-2xl border flex flex-col justify-between ${darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)]"
+                }`}>
                 <div>
                   <h4 className="text-xs font-black uppercase tracking-wider text-slate-400">User Distribution</h4>
                   <p className={`text-xs font-medium mt-0.5 ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>Ratio of platform account types</p>
@@ -529,7 +521,7 @@ const AdminDashboard = () => {
                       {donutCategories.map((c, idx) => {
                         const pct = (c.count / totalDonutCount) * 100;
                         const strokeDasharray = `${(pct / 100) * donutCircumference} ${donutCircumference}`;
-                        
+
                         const offset = -donutCategories
                           .slice(0, idx)
                           .reduce((acc, curr) => acc + (curr.count / totalDonutCount) * donutCircumference, 0);
@@ -574,9 +566,8 @@ const AdminDashboard = () => {
                     return (
                       <div
                         key={cat.label}
-                        className={`flex items-center justify-between text-sm px-2.5 py-1.5 rounded-lg transition-colors duration-150 ${
-                          isHovered ? "bg-slate-100 dark:bg-slate-800" : ""
-                        }`}
+                        className={`flex items-center justify-between text-sm px-2.5 py-1.5 rounded-lg transition-colors duration-150 ${isHovered ? "bg-slate-100 dark:bg-slate-800" : ""
+                          }`}
                         onMouseEnter={() => setHoveredDonutIndex(idx)}
                         onMouseLeave={() => setHoveredDonutIndex(null)}
                       >
@@ -597,14 +588,13 @@ const AdminDashboard = () => {
 
             {/* Activities and Quick Actions Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
+
               {/* Recent Activity List */}
-              <div className={`p-6 rounded-2xl border lg:col-span-2 flex flex-col justify-between ${
-                darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)]"
-              }`}>
+              <div className={`p-6 rounded-2xl border lg:col-span-2 flex flex-col justify-between ${darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)]"
+                }`}>
                 <div>
                   <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Recent Activity</h4>
-                  
+
                   <div className="space-y-4">
                     {[
                       { title: "1 properties pending approval", label: "Property approval queue check", time: "Just now", color: "text-amber-500 bg-amber-500/10" },
@@ -614,7 +604,7 @@ const AdminDashboard = () => {
                     ].map((activity, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-4 p-3 rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-all duration-150 text-left"
+                        className="flex items-start gap-4 p-3 rounded-xl border border-transparent hover:border-slate-100 dark:hover:border-slate-300 hover:bg-slate-50/50 dark:hover:bg-slate-300/30 transition-all duration-150 text-left"
                       >
                         <div className={`w-9 h-9 rounded-xl shrink-0 flex items-center justify-center font-bold text-sm ${activity.color}`}>
                           {idx === 0 && <Building2 className="w-4 h-4" />}
@@ -634,21 +624,19 @@ const AdminDashboard = () => {
               </div>
 
               {/* Quick Actions Card Grid */}
-              <div className={`p-6 rounded-2xl border flex flex-col justify-between ${
-                darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)]"
-              }`}>
+              <div className={`p-6 rounded-2xl border flex flex-col justify-between ${darkMode ? "bg-slate-800/40 border-slate-800/60" : "bg-white border-slate-100 shadow-[0_4px_25px_rgba(0,0,0,0.01)]"
+                }`}>
                 <div>
                   <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 mb-4">Quick Actions</h4>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
-                    
+
                     <button
                       onClick={() => {
                         addToast("Manage Users registry selection - Coming soon", "info");
                       }}
-                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${
-                        darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
-                      }`}
+                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
+                        }`}
                     >
                       <Users className="w-5 h-5 text-blue-500 mb-2" />
                       <p className="text-sm font-bold leading-tight">Manage Users</p>
@@ -659,9 +647,8 @@ const AdminDashboard = () => {
                       onClick={() => {
                         addToast("Property Approvals listing - Coming soon", "info");
                       }}
-                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${
-                        darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
-                      }`}
+                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
+                        }`}
                     >
                       <Building2 className="w-5 h-5 text-amber-500 mb-2" />
                       <p className="text-sm font-bold leading-tight">Property Approvals</p>
@@ -672,9 +659,8 @@ const AdminDashboard = () => {
                       onClick={() => {
                         addToast("Booking Overview schedules - Coming soon", "info");
                       }}
-                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${
-                        darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
-                      }`}
+                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
+                        }`}
                     >
                       <Calendar className="w-5 h-5 text-emerald-500 mb-2" />
                       <p className="text-sm font-bold leading-tight">Booking Overview</p>
@@ -685,9 +671,8 @@ const AdminDashboard = () => {
                       onClick={() => {
                         addToast("Platform Configuration settings - Coming soon", "info");
                       }}
-                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${
-                        darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
-                      }`}
+                      className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
+                        }`}
                     >
                       <Database className="w-5 h-5 text-violet-500 mb-2" />
                       <p className="text-sm font-bold leading-tight">Platform Settings</p>

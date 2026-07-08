@@ -54,3 +54,19 @@ export interface LoginResponse {
   token: string;
   user: AuthUser;
 }
+
+
+export type PropertyStatus = "Active" | "Pending" | "Draft" | "Rejected";
+ 
+export interface Property {
+  id: string;
+  title: string;
+  location: string;
+  imageUrl: string;
+  status: PropertyStatus;
+  beds: number;
+  baths: number;
+  rating: number;
+  price: number;
+  bookings: number;
+}
