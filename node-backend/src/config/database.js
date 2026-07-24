@@ -66,17 +66,74 @@ async function initDb() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS properties (
       id VARCHAR(36) PRIMARY KEY,
+      landlord_id INT NOT NULL,
       title VARCHAR(255) NOT NULL,
+      description TEXT DEFAULT NULL,
       location VARCHAR(255) NOT NULL,
-      image_url VARCHAR(500) NOT NULL,
-      status ENUM('Active', 'Pending', 'Draft', 'Rejected') NOT NULL,
-      beds INT NOT NULL,
-      baths INT NOT NULL,
+      category VARCHAR(50) DEFAULT NULL,
+      address VARCHAR(255) DEFAULT NULL,
+      city VARCHAR(100) DEFAULT NULL,
+      state VARCHAR(100) DEFAULT NULL,
+      zip_code VARCHAR(20) DEFAULT NULL,
+      country VARCHAR(100) DEFAULT NULL,
+      image_url VARCHAR(500) NOT NULL DEFAULT '',
+      status ENUM('Active', 'Pending', 'Draft', 'Rejected') NOT NULL DEFAULT 'Pending',
+      beds INT NOT NULL DEFAULT 1,
+      baths INT NOT NULL DEFAULT 1,
+      guests INT DEFAULT 1,
+      sqft INT DEFAULT 0,
       rating DECIMAL(2,1) DEFAULT 0.0,
       price DECIMAL(10,2) NOT NULL,
-      bookings INT DEFAULT 0
+      bookings INT DEFAULT 0,
+      amenities JSON DEFAULT NULL,
+      photos JSON DEFAULT NULL,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (landlord_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN landlord_id INT NOT NULL AFTER id`);
+  } catch {} // column already exists
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN description TEXT DEFAULT NULL AFTER title`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN category VARCHAR(50) DEFAULT NULL AFTER location`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN address VARCHAR(255) DEFAULT NULL AFTER category`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN city VARCHAR(100) DEFAULT NULL AFTER address`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN state VARCHAR(100) DEFAULT NULL AFTER city`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN zip_code VARCHAR(20) DEFAULT NULL AFTER state`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN country VARCHAR(100) DEFAULT NULL AFTER zip_code`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN guests INT DEFAULT 1 AFTER baths`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN sqft INT DEFAULT 0 AFTER guests`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN amenities JSON DEFAULT NULL AFTER bookings`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN photos JSON DEFAULT NULL AFTER amenities`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP AFTER photos`);
+  } catch {}
+  try {
+    await pool.query(`ALTER TABLE properties ADD FOREIGN KEY (landlord_id) REFERENCES users(id) ON DELETE CASCADE`);
+  } catch {}
 
   const [admins] = await pool.query('SELECT id FROM admin LIMIT 1');
   if (admins.length === 0) {

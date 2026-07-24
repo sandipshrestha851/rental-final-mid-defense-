@@ -7,6 +7,7 @@ const { morganMiddleware } = require('./utils/logger');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const messageRoutes = require('./routes/messageRoutes');
+const propertyRoutes = require('./routes/propertyRoutes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -27,7 +28,7 @@ app.use(limiter);
 
 app.use(morganMiddleware);
 
-app.use(express.json({ limit: '10kb' }));
+app.use(express.json({ limit: '5mb' }));
 
 app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'Chat backend (Node.js) is running' });
@@ -36,6 +37,7 @@ app.get('/', (req, res) => {
 app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', messageRoutes);
+app.use('/api', propertyRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
