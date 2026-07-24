@@ -1,89 +1,79 @@
-"use client";
+"use-client";
+import { MapPin, BedDouble, Bath, Star } from "lucide-react";
+import { Property } from "../../lib/types";
+import StatusBadge from "../ui/StatusBadge";
 
-import { Heart, Star, MapPin, BedDouble, Bath, Maximize } from "lucide-react";
-import { useState } from "react";
+interface PropertyCardProps {
+  property: Property;
+  onClick?: (property: Property) => void;
+}
 
-const PropertyCard = () => {
-  const [isHovered, setIsHovered] = useState(false);
+export default function PropertyCard({ property, onClick }: PropertyCardProps) {
+  const {
+    title,
+    location,
+    imageUrl,
+    status,
+    beds,
+    baths,
+    rating,
+    price,
+    bookings,
+  } = property;
 
   return (
-    <div
-      className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-md transition-translate duration-300 hover:shadow-xl hover:-translate-y-2"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+    <button
+      type="button"
+      onClick={() => onClick?.(property)}
+      className="group flex w-full flex-col overflow-hidden rounded-2xl bg-white text-left shadow-sm ring-1 ring-black/5 transition hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500"
     >
-      {/* Image Placeholder */}
-      <div className="relative h-66 w-full bg-gray-200 overflow-hidden">
+      {/* Image */}
+      <div className="relative h-44 w-full overflow-hidden bg-gray-100">
         <img
-          className={`${isHovered ? "scale-110" : "scale-100"} Property_img h-full w-full transition-transform duration-300 object-cover`}
-          src="/assets/sample_property.png"
-          alt=""
+          src={imageUrl}
+          alt={title}
+          className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+          loading="lazy"
         />
-        {/* Category */}
-        <span className="absolute left-4 top-4 rounded-full bg-white px-3 py-1 text-sm font-medium text-gray-700">
-          House
-        </span>
-
-        {/* Favorite */}
-        <button className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow">
-          <Heart size={20} className="text-gray-600" />
-        </button>
+        <StatusBadge status={status} />
       </div>
 
-      {/* Card Body */}
-      <div className="p-6">
-        {/* Title & Rating */}
-        <div className="flex items-center justify-between mb-1">
-          <h2 className="text-[17px] font-semibold text-gray-900">
-            Modern Family Home with Garden
-          </h2>
-
-          <div className="flex items-center gap-1">
-            <Star size={18} className="fill-yellow-400 text-yellow-400" />
-            <span className="font-medium text-gray-800">4.9</span>
-          </div>
+      {/* Body */}
+      <div className="flex flex-1 flex-col gap-3 px-4 pb-4 pt-3">
+        <div>
+          <h3 className="line-clamp-1 text-[15px] font-semibold text-gray-900">
+            {title}
+          </h3>
+          <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
+            <MapPin className="h-3.5 w-3.5 shrink-0" />
+            {location}
+          </p>
         </div>
 
-        {/* Location */}
-        <div className="flex items-center gap-2 text-gray-500 mb-2">
-          <MapPin size={16} />
-          <span>Austin, TX</span>
+        <div className="flex items-center gap-4 text-sm text-gray-600">
+          <span className="flex items-center gap-1.5">
+            <BedDouble className="h-4 w-4 text-gray-400" />
+            {beds}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Bath className="h-4 w-4 text-gray-400" />
+            {baths}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+            {rating.toFixed(1)}
+          </span>
         </div>
 
-        {/* Property Details */}
-        <div className="flex items-center gap-2 text-gray-600 mb-2">
-          <div className="flex items-center gap-1">
-            <BedDouble size={18} />
-            <span>4</span>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Bath size={18} />
-            <span>3</span>
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Maximize size={18} />
-            <span>2800 sqft</span>
-          </div>
-        </div>
-
-        <hr className="border-gray-200 mb-4" />
-
-        {/* Price */}
-        <div className="flex items-center justify-between">
-          <div>
-            <span className="text-[18px] font-bold text-[#5e35b6]">$4,500</span>
-            <span className="text-gray-500">/mo</span>
-          </div>
-
-          <button className="rounded-xl bg-[#5e35b6] px-3 py-1.5 font-medium text-white transition-colors cursor-pointer hover:bg-[#4b2796]">
-            View
-          </button>
+        <div className="flex items-center justify-between border-t border-gray-100 pt-3">
+          <p className="text-base font-semibold text-violet-700">
+            ${price.toLocaleString()}
+            <span className="text-sm font-normal text-gray-400">/mo</span>
+          </p>
+          <p className="text-sm text-gray-400">{bookings} bookings</p>
         </div>
       </div>
-    </div>
+    </button>
   );
-};
+}
 
-export default PropertyCard;

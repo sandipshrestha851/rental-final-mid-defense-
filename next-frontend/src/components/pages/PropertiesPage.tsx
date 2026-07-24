@@ -1,10 +1,11 @@
+"use client";
 import { useMemo, useState } from "react";
 import { Plus, Search } from "lucide-react";
 import TopBar from "../ui/TopBar";
 import PropertyCard from "../ui/PropertyCard";
 import StatusFilter from "../ui/StatusFilter";
 import { Property } from "../../lib/types";
-// import { mockProperties } from "./mockProperties";
+import { mockProperties } from "../../data/mockProperties";
 
 const STATUS_OPTIONS = ["All Status", "Active", "Pending", "Draft"];
 
@@ -81,7 +82,7 @@ export default function PropertiesPage({
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((property) => (
               <PropertyCard
-                key={property.id}
+               key={property.id}
                 property={property}
                 onClick={onSelectProperty}
               />

@@ -79,6 +79,21 @@ async function initDb() {
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS properties (
+    id VARCHAR(36) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    location VARCHAR(255) NOT NULL,
+    image_url VARCHAR(500) NOT NULL,
+    status ENUM('Active', 'Pending', 'Draft', 'Rejected') NOT NULL,
+    beds INT NOT NULL,
+    baths INT NOT NULL,
+    rating DECIMAL(2,1) DEFAULT 0.0,
+    price DECIMAL(10,2) NOT NULL,
+    bookings INT DEFAULT 0
+);
+    `)
+
   // Seed default admin if no admin accounts exist
   const [admins] = await pool.query("SELECT id FROM admin LIMIT 1");
   if (admins.length === 0) {
