@@ -4,6 +4,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 // import {useNavigate} from 'react-router-dom'
 import AdminDashboard from '../layout/AdminDashboard'
+import PropertiesAdmin from './PropertiesAdmin'
 import Admin_Navbar from '../layout/Admin_Navbar'
 import Reservations from './MyReservations'
 import { useRouter } from "next/navigation";
@@ -22,7 +23,7 @@ const AdminPage = () => {
       <main className={`ml-[15%] w-[85%] h-screen p-4`}>
         {navto == "dashboard" && <AdminDashboard/>}
         {navto == "users" && <DashboardMain navto={navto} />}
-        {navto == "properties" && <DashboardMain navto={navto}/>}
+        {navto == "properties" && <PropertiesAdmin/>}
         {navto == "bookings" && <DashboardMain navto={navto} />}
       </main>
     </div>

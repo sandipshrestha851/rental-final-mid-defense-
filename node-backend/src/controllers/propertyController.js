@@ -86,4 +86,46 @@ async function deleteProperty(req, res, next) {
   }
 }
 
-module.exports = { getMyProperties, createProperty, updateProperty, deleteProperty };
+// ── Admin endpoints ──────────────────────────────────────────────────
+
+async function getAllProperties(req, res, next) {
+  try {
+    if (req.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+    const properties = await propertyModel.findAll();
+    res.json(properties);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function adminUpdatePropertyStatus(req, res, next) {
+  try {
+    if (req.role !== 'admin') {
+      return res.status(403).json({ message: 'Admin access required' });
+    }
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const existing = await propertyModel.findById(id);
+    if (!existing) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+
+    const validStatuses = ['Active', 'Pending', 'Rejected', 'Draft'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+    }
+
+    const updated = await propertyModel.update(id, { status });
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  getMyProperties, createProperty, updateProperty, deleteProperty,
+  getAllProperties, adminUpdatePropertyStatus,
+};

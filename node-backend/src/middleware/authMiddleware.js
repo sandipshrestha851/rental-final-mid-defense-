@@ -13,6 +13,7 @@ function tokenRequired(req, res, next) {
     const decoded = verifyToken(token);
     req.userId = decoded.user_id;
     req.email = decoded.email;
+    req.role = decoded.role || null;
     next();
   } catch (err) {
     if (err.name === 'TokenExpiredError') {

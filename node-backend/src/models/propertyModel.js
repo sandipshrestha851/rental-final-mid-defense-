@@ -72,4 +72,14 @@ async function remove(id) {
   await pool.query('DELETE FROM properties WHERE id = ?', [id]);
 }
 
-module.exports = { findByLandlordId, findById, create, update, remove };
+async function findAll() {
+  const [rows] = await pool.query(
+    `SELECT p.*, u.full_name AS landlord_name, u.email AS landlord_email
+     FROM properties p
+     LEFT JOIN users u ON p.landlord_id = u.id
+     ORDER BY p.created_at DESC`
+  );
+  return rows;
+}
+
+module.exports = { findByLandlordId, findById, create, update, remove, findAll };
