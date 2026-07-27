@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { DashboardMain } from "@/components/organisms/dashboard/DashboardMain";
 import { ChatApp } from "@/components/organisms/chat/ChatApp";
 import PropertiesPage from "./PropertiesPage"
+import ReviewsPage from "./ReviewsPage"
 
 const LandLordPage = () => {
   const [navto, setNavto] = useState<string>("dashboard")
@@ -23,7 +24,7 @@ const LandLordPage = () => {
         {navto == "dashboard" && <DashboardMain navto={navto} />}
         {navto == "properties" && <PropertiesPage />}
         {navto == "reservation" && <Reservations />}
-        {navto == "reviews" && <DashboardMain navto={navto} />}
+        {navto == "reviews" && <ReviewsPage />}
         {navto === "messages" && <ChatApp embedded loginPath="/signin" />}
       </main>
     </div>
