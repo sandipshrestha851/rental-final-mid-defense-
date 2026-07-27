@@ -1,22 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  Home,
-  Search,
-  Calendar,
-  MessageSquare,
-  ChevronLeft,
-  Bell,
-} from "lucide-react";
+import { Calendar } from "lucide-react";
+import TopBar from "@/components/ui/TopBar";
 import "./MyBookings.css";
-
-const NAV_ITEMS = [
-  { key: "dashboard", label: "Dashboard", icon: Home },
-  { key: "search", label: "Search", icon: Search },
-  { key: "bookings", label: "My Bookings", icon: Calendar },
-  { key: "messages", label: "Messages", icon: MessageSquare },
-];
 
 const TABS = [
   { key: "all", label: "All", count: 0 },
@@ -26,35 +13,13 @@ const TABS = [
 ];
 
 export default function MyBookings() {
-  const [activeNav, setActiveNav] = useState("bookings");
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
 
   return (
     <div className="app">
       <div className="main">
-        <header className="topbar">
-          <div className="breadcrumb">
-            <span>Tenant</span>
-            <span>/</span>
-            <span className="active">Bookings</span>
-          </div>
-
-          <div className="topbar-right">
-            <div className="search-box">
-              <Search size={16} />
-              <input type="text" placeholder="Search properties, bookings..." />
-            </div>
-            <div className="icon-btn">
-              <Bell size={20} />
-              <span className="dot"></span>
-            </div>
-            <img
-              className="avatar"
-              src="https://i.pravatar.cc/64?img=12"
-              alt="User avatar"
-            />
-          </div>
-        </header>
+        <TopBar role="Tenant" page="Bookings" searchQuery={searchQuery} onSearchChange={setSearchQuery} />
         <main className="content">
           <h1 className="page-title">My Bookings</h1>
           <p className="page-subtitle">Manage your reservations</p>

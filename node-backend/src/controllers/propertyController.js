@@ -13,7 +13,7 @@ async function getMyProperties(req, res, next) {
 async function createProperty(req, res, next) {
   try {
     const {
-      title, description, location, category,
+      title, description, location, category, property_type,
       address, city, state, zip_code, country,
       image_url, status, beds, baths, guests, sqft,
       rating, price, bookings, amenities, photos,
@@ -30,6 +30,7 @@ async function createProperty(req, res, next) {
       description,
       location: location || '',
       category,
+      property_type,
       address,
       city,
       state,
@@ -125,7 +126,19 @@ async function adminUpdatePropertyStatus(req, res, next) {
   }
 }
 
+// ── Public endpoint ─────────────────────────────────────────────────
+
+async function getActiveProperties(req, res, next) {
+  try {
+    const properties = await propertyModel.findAllActive();
+    res.json(properties);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getMyProperties, createProperty, updateProperty, deleteProperty,
   getAllProperties, adminUpdatePropertyStatus,
+  getActiveProperties,
 };

@@ -35,24 +35,7 @@ const Tenant_Navbar = ({ navto, setNavto }: SideNavbarProps) => {
     <div className="flex">
       <nav className="flex flex-col bg-[#1a1a2e] w-[15%] h-screen fixed">
         <div className="logo flex items-center gap-2 my-6 mx-5 text-white">
-          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-[#5E35B1] to-[#7C4DFF] flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="lucide lucide-house w-5 h-5 text-white"
-              aria-hidden="true"
-            >
-              <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" />
-              <path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            </svg>
-          </div>
+          <img src="/assets/2.png" alt="Logo" className="h-12 w-auto" />
           <h2 className="font-semibold text-xl">RentNest</h2>
         </div>
         <div className="seperator w-full h-px bg-[#313143]"></div>

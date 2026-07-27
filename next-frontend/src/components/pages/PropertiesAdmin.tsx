@@ -179,8 +179,9 @@ export function PropertiesAdmin() {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold text-gray-900">Properties</h1>
-        <p className="text-sm text-gray-500">
+        <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-violet-600 to-indigo-500 bg-clip-text text-transparent">Properties</h1>
+        <p className="text-sm text-gray-500 font-medium flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-teal-400 inline-block"></span>
           Review property listings submitted by landlords and approve or reject them.
         </p>
       </div>
@@ -209,7 +210,7 @@ export function PropertiesAdmin() {
               value={search}
               onChange={(e) => onSearch(e.target.value)}
               placeholder="Search by property, location, landlord..."
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-9 pr-3 text-sm text-gray-700 outline-none transition focus:border-teal-400 focus:bg-white focus:ring-2 focus:ring-teal-100"
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2.5 pl-9 pr-3 text-sm font-medium text-gray-700 outline-none transition focus:border-teal-400 focus:bg-white focus:ring-2 focus:ring-teal-100 placeholder:font-normal"
             />
           </div>
 
@@ -218,8 +219,8 @@ export function PropertiesAdmin() {
               <button
                 key={tab.key}
                 onClick={() => onFilter(tab.key)}
-                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium transition ${
-                  filter === tab.key ? "bg-teal-600 text-white" : "text-gray-500 hover:bg-gray-100"
+                className={`whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-bold transition ${
+                  filter === tab.key ? "bg-teal-600 text-white shadow-sm" : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
                 }`}
               >
                 {tab.label}
@@ -231,8 +232,8 @@ export function PropertiesAdmin() {
         {/* Loading */}
         {loading && (
           <div className="flex items-center justify-center gap-2 py-16 text-gray-400">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading properties…
+            <Loader2 className="h-5 w-5 animate-spin text-teal-500" />
+            <span className="font-semibold">Loading properties…</span>
           </div>
         )}
 
@@ -241,20 +242,20 @@ export function PropertiesAdmin() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-100 text-xs uppercase tracking-wide text-gray-400">
-                  <th className="px-4 py-3 font-medium">Property</th>
-                  <th className="px-4 py-3 font-medium">Landlord</th>
-                  <th className="px-4 py-3 font-medium">Price</th>
-                  <th className="px-4 py-3 font-medium">Submitted</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 text-right font-medium">Actions</th>
+                <tr className="border-b border-gray-100 text-[11px] uppercase tracking-[0.12em] text-gray-400">
+                  <th className="px-4 py-3 font-extrabold">Property</th>
+                  <th className="px-4 py-3 font-extrabold">Landlord</th>
+                  <th className="px-4 py-3 font-extrabold">Price</th>
+                  <th className="px-4 py-3 font-extrabold">Submitted</th>
+                  <th className="px-4 py-3 font-extrabold">Status</th>
+                  <th className="px-4 py-3 text-right font-extrabold">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {paged.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="px-4 py-10 text-center text-gray-400">
-                      No properties match your search.
+                    <td colSpan={6} className="px-4 py-10 text-center">
+                      <p className="text-gray-400 font-medium">No properties match your search.</p>
                     </td>
                   </tr>
                 )}
@@ -270,8 +271,8 @@ export function PropertiesAdmin() {
                           </div>
                         )}
                         <div className="min-w-0">
-                          <p className="truncate font-medium text-gray-800">{p.title}</p>
-                          <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-gray-400">
+                          <p className="truncate font-bold text-gray-800">{p.title}</p>
+                          <p className="mt-0.5 flex items-center gap-1 truncate text-xs text-gray-400 font-medium">
                             <MapPin className="h-3 w-3 shrink-0" />
                             {p.location}
                           </p>
@@ -279,14 +280,14 @@ export function PropertiesAdmin() {
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <p className="text-gray-700">{p.landlordName || `Landlord #${p.landlordId ?? "—"}`}</p>
-                      {p.landlordEmail && <p className="text-xs text-gray-400">{p.landlordEmail}</p>}
+                      <p className="font-semibold text-gray-700">{p.landlordName || `Landlord #${p.landlordId ?? "—"}`}</p>
+                      {p.landlordEmail && <p className="text-xs text-gray-400 font-medium">{p.landlordEmail}</p>}
                     </td>
-                    <td className="px-4 py-3 text-gray-700">
-                      {currency(p.price)}
-                      <span className="text-gray-400">/mo</span>
+                    <td className="px-4 py-3">
+                      <span className="font-bold text-gray-700">{currency(p.price)}</span>
+                      <span className="text-gray-400 text-xs font-medium">/mo</span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500">{formatDate(p.createdAt)}</td>
+                    <td className="px-4 py-3 font-medium text-gray-500">{formatDate(p.createdAt)}</td>
                     <td className="px-4 py-3">
                       <StatusBadge status={p.status} />
                     </td>
@@ -327,10 +328,10 @@ export function PropertiesAdmin() {
         {/* Pagination */}
         {!loading && filtered.length > 0 && (
           <div className="flex items-center justify-between border-t border-gray-100 px-4 py-3 text-sm text-gray-500">
-            <p>
-              Showing <span className="font-medium text-gray-700">{(page - 1) * PAGE_SIZE + 1}</span> to{" "}
-              <span className="font-medium text-gray-700">{Math.min(page * PAGE_SIZE, filtered.length)}</span> of{" "}
-              <span className="font-medium text-gray-700">{filtered.length}</span>
+            <p className="font-medium">
+              Showing <span className="font-bold text-gray-800">{(page - 1) * PAGE_SIZE + 1}</span> to{" "}
+              <span className="font-bold text-gray-800">{Math.min(page * PAGE_SIZE, filtered.length)}</span> of{" "}
+              <span className="font-bold text-gray-800">{filtered.length}</span>
             </p>
             <div className="flex items-center gap-1.5">
               <button
@@ -371,7 +372,7 @@ export function PropertiesAdmin() {
               <img src={selected.imageUrl} alt={selected.title} className="mb-4 h-44 w-full rounded-lg object-cover" />
             )}
             <div className="mb-1 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900">{selected.title}</h2>
+              <h2 className="text-xl font-black text-gray-900">{selected.title}</h2>
               <StatusBadge status={selected.status} />
             </div>
             <p className="mb-4 flex items-center gap-1 text-sm text-gray-500">
@@ -479,12 +480,12 @@ const StatCard = ({
   icon: React.ReactNode;
   accent: string;
 }) => (
-  <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+  <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm hover:shadow-md hover:border-gray-200 transition-all duration-200">
     <div className="flex items-center justify-between">
-      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-sm font-bold text-gray-500 uppercase tracking-wide">{label}</p>
       <span className={`rounded-lg p-2 ${accent}`}>{icon}</span>
     </div>
-    <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
+    <p className="mt-2 text-3xl font-black tracking-tight text-gray-900">{value}</p>
   </div>
 );
 

@@ -167,7 +167,7 @@ export default function PropertiesPage({
 
   return (
     <div className="min-h-screen bg-violet-50/40">
-      <TopBar />
+      <TopBar role="Landlord" page="Properties" />
 
       <main className="mx-auto max-w-7xl px-6 py-8">
         {/* Page header */}

@@ -16,11 +16,11 @@ async function findById(id) {
 async function create(data) {
   await pool.query(
     `INSERT INTO properties (
-      id, landlord_id, title, description, location, category,
+      id, landlord_id, title, description, location, category, property_type,
       address, city, state, zip_code, country, image_url, status,
       beds, baths, guests, sqft, rating, price, bookings,
       amenities, photos
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       data.id,
       data.landlord_id,
@@ -28,6 +28,7 @@ async function create(data) {
       data.description || null,
       data.location,
       data.category || null,
+      data.property_type || null,
       data.address || null,
       data.city || null,
       data.state || null,
@@ -82,4 +83,15 @@ async function findAll() {
   return rows;
 }
 
-module.exports = { findByLandlordId, findById, create, update, remove, findAll };
+async function findAllActive() {
+  const [rows] = await pool.query(
+    `SELECT p.*, u.full_name AS landlord_name, u.email AS landlord_email
+     FROM properties p
+     LEFT JOIN users u ON p.landlord_id = u.id
+     WHERE p.status = 'Active'
+     ORDER BY p.created_at DESC`
+  );
+  return rows;
+}
+
+module.exports = { findByLandlordId, findById, create, update, remove, findAll, findAllActive };

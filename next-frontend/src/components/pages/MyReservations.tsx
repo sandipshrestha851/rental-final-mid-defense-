@@ -1,19 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
+import TopBar from "@/components/ui/TopBar";
 import "./MyReservations.css";
 import {
+  Eye,
+  MapPin,
+  Calendar,
+  Search,
   LayoutGrid,
   Building2,
-  Calendar,
   Star,
   User,
   MessageSquare,
-  Search,
   Bell,
-  ChevronLeft,
-  Eye,
-  MapPin,
 } from "lucide-react";
 
 interface Reservation {
@@ -133,25 +133,7 @@ export default function Reservations() {
   return (
     <div className="res-app">
       <div className="res-main">
-        <header className="res-topbar">
-          <div className="res-breadcrumb">
-            <span className="res-breadcrumb-muted">Landlord</span>
-            <span className="res-breadcrumb-sep">/</span>
-            <span className="res-breadcrumb-active">Reservations</span>
-          </div>
-
-          <div className="res-topbar-right">
-            <div className="res-topbar-search">
-              <Search size={16} className="res-icon-muted" />
-              <input placeholder="Search properties, bookings..." />
-            </div>
-            <button className="res-icon-btn" aria-label="Notifications">
-              <Bell size={18} />
-              <span className="res-notif-dot" />
-            </button>
-            <div className="res-avatar-topbar" />
-          </div>
-        </header>
+        <TopBar role="Landlord" page="Reservations" />
 
         <main className="res-content">
           <div className="res-page-heading">

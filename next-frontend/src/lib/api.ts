@@ -318,6 +318,7 @@ interface PropertyRow {
   description: string | null;
   location: string;
   category: string | null;
+  property_type: string | null;
   address: string | null;
   city: string | null;
   state: string | null;
@@ -361,6 +362,7 @@ function toProperty(row: PropertyRow): Property {
     bookings: row.bookings,
     description: row.description || undefined,
     category: (row.category as Property["category"]) || undefined,
+    propertyType: (row.property_type as Property["propertyType"]) || undefined,
     address: row.address || undefined,
     city: row.city || undefined,
     state: row.state || undefined,
@@ -386,6 +388,7 @@ function toPropertyRow(p: Partial<Property> & { landlord_id: number }) {
     description: p.description || null,
     location: p.location,
     category: p.category || null,
+    property_type: p.propertyType || null,
     address: p.address || null,
     city: p.city || null,
     state: p.state || null,
@@ -457,6 +460,12 @@ export const api = {
     const rows = await request<PropertyRow[]>("/api/admin/properties", {
       headers: authHeaders(token),
     });
+    return rows.map(toProperty);
+  },
+
+  /** Public: fetch only Active properties for tenant browsing. */
+  async getActiveProperties(): Promise<Property[]> {
+    const rows = await request<PropertyRow[]>("/api/properties/active");
     return rows.map(toProperty);
   },
 

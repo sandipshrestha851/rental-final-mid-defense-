@@ -29,9 +29,16 @@ export default function ReviewStep({ data }: ReviewStepProps) {
 
         <div className="flex flex-col gap-3 p-4">
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">
-              {data.title || "Untitled property"}
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-lg font-semibold text-gray-900">
+                {data.title || "Untitled property"}
+              </h3>
+              {data.propertyType && (
+                <span className="rounded-full bg-violet-50 px-2.5 py-0.5 text-xs font-medium text-violet-700">
+                  {data.propertyType}
+                </span>
+              )}
+            </div>
             <p className="mt-1 flex items-center gap-1 text-sm text-gray-500">
               <MapPin className="h-3.5 w-3.5" />
               {[data.address, data.city, data.state].filter(Boolean).join(", ") ||

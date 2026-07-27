@@ -196,6 +196,11 @@ export type PropertyCategory =
   | "Condo"
   | "Loft";
 
+export type PropertyType =
+  | "For Rent"
+  | "For Sale"
+  | "Lease";
+
 export interface Property {
   id: string;
   title: string;
@@ -210,6 +215,7 @@ export interface Property {
   // Optional extended fields, populated by the Add Property wizard.
   description?: string;
   category?: PropertyCategory;
+  propertyType?: PropertyType;
   address?: string;
   city?: string;
   state?: string;
@@ -233,6 +239,7 @@ export interface NewPropertyInput {
   title: string;
   description: string;
   category: PropertyCategory | "";
+  propertyType: PropertyType | "";
   address: string;
   city: string;
   state: string;
@@ -251,6 +258,7 @@ export const emptyNewProperty: NewPropertyInput = {
   title: "",
   description: "",
   category: "",
+  propertyType: "",
   address: "",
   city: "",
   state: "",

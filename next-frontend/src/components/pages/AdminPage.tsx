@@ -22,9 +22,9 @@ const AdminPage = () => {
       />
       <main className={`ml-[15%] w-[85%] h-screen p-4`}>
         {navto == "dashboard" && <AdminDashboard/>}
-        {navto == "users" && <DashboardMain navto={navto} />}
+        {navto == "users" && <DashboardMain navto={navto} role="Admin" />}
         {navto == "properties" && <PropertiesAdmin/>}
-        {navto == "bookings" && <DashboardMain navto={navto} />}
+        {navto == "bookings" && <DashboardMain navto={navto} role="Admin" />}
       </main>
     </div>
   )

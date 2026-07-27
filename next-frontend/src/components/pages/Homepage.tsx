@@ -1,9 +1,30 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import Navbar from "../layout/Navbar";
-import CardList from "../layout/CardList";
 import Footer from "../layout/Footer";
+import PropertyCard2 from "../ui/PropertyCard2";
+import { api, ApiError } from "@/lib/api";
+import type { Property } from "@/lib/types";
 
 const Homepage = () => {
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getActiveProperties()
+      .then((rows) => {
+        if (!cancelled) setProperties(rows);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, []);
+
   return (
     <div>
       <div className="-mb-10">
@@ -90,7 +111,11 @@ const Homepage = () => {
             </div>
           </div>
           <div className="cards">
-            <CardList />
+             <div className="PropertyContainer grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+              {!loading && properties.map((property) => (
+                <PropertyCard2 key={property.id} property={property} />
+              ))}
+            </div>
           </div>
         </div>
 

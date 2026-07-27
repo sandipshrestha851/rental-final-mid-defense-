@@ -34,10 +34,16 @@ export interface Property {
 }
 
 /** Shape collected by the Add Property wizard before it's turned into a Property. */
+export type PropertyType =
+  | "For Rent"
+  | "For Sale"
+  | "Lease";
+
 export interface NewPropertyInput {
   title: string;
   description: string;
   category: PropertyCategory | "";
+  propertyType: PropertyType | "";
   address: string;
   city: string;
   state: string;
@@ -56,6 +62,7 @@ export const emptyNewProperty: NewPropertyInput = {
   title: "",
   description: "",
   category: "",
+  propertyType: "",
   address: "",
   city: "",
   state: "",

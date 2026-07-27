@@ -64,6 +64,7 @@ export default function AddPropertyModal({
         bookings: 0,
         description: form.description,
         category: form.category || undefined,
+        propertyType: form.propertyType || undefined,
         address: form.address,
         city: form.city,
         state: form.state,

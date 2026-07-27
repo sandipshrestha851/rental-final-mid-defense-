@@ -1,39 +1,43 @@
 "use client";
 import { Search, Bell } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function TopBar() {
+interface TopBarProps {
+  role: string;
+  page: string;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+}
+
+export default function TopBar({ role, page, searchQuery, onSearchChange }: TopBarProps) {
+  const { user } = useAuth();
+
+  const avatarSrc = user?.full_name
+    ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=5E35B1&color=fff&size=38`
+    : "https://i.pravatar.cc/64?img=12";
+
   return (
-    <header className="flex h-16 items-center justify-between border-b border-gray-100 bg-white px-6">
-      <nav className="flex items-center gap-1.5 text-sm">
-        <span className="text-gray-400">Landlord</span>
-        <span className="text-gray-300">/</span>
-        <span className="font-medium text-violet-700">Properties</span>
-      </nav>
-
-      <div className="flex items-center gap-4">
-        <div className="relative hidden sm:block">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+    <header className="flex items-center justify-between h-17.5 shrink-0 bg-white border-b border-[#e6e4f3] px-8 rounded-t-xl">
+      <div className="flex items-center gap-1.5 text-sm text-[#6b6b7c]">
+        <span>{role}</span>
+        <span>/</span>
+        <span className="text-[#5b3fd6] font-semibold">{page}</span>
+      </div>
+      <div className="flex items-center gap-5">
+        <div className="flex items-center gap-2 bg-[#f2f1f8] rounded-xl px-4 py-2 text-[#9997ad] text-sm w-80">
+          <Search className="w-4 h-4" />
           <input
-            type="text"
+            value={searchQuery || ""}
+            onChange={(e) => onSearchChange?.(e.target.value)}
             placeholder="Search properties, bookings..."
-            className="w-64 rounded-full bg-gray-50 py-2 pl-9 pr-4 text-sm text-gray-600 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-200"
+            className="bg-transparent border-none outline-none w-full text-sm text-[#1c1b2e] placeholder:text-[#9997ad]"
           />
         </div>
-
-        <button
-          type="button"
-          aria-label="Notifications"
-          className="relative rounded-full p-2 text-gray-500 hover:bg-gray-50"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-rose-500" />
-        </button>
-
-        <img
-          src="https://i.pravatar.cc/64?img=12"
-          alt="Account"
-          className="h-9 w-9 rounded-full object-cover ring-1 ring-gray-200"
-        />
+        <div className="relative text-[#555267] flex cursor-pointer">
+          <Bell className="w-5 h-5" />
+          <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-white" />
+        </div>
+        <img className="w-9.5 h-9.5 rounded-full object-cover bg-[#d8d5ec]" src={avatarSrc} alt="Avatar" />
       </div>
     </header>
   );

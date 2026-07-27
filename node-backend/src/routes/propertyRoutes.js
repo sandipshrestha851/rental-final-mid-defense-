@@ -13,4 +13,7 @@ router.delete('/properties/:id', tokenRequired, propertyController.deletePropert
 router.get('/admin/properties', tokenRequired, propertyController.getAllProperties);
 router.put('/admin/properties/:id/status', tokenRequired, propertyController.adminUpdatePropertyStatus);
 
+// Public endpoint — no auth required, returns only Active listings
+router.get('/properties/active', propertyController.getActiveProperties);
+
 module.exports = router;

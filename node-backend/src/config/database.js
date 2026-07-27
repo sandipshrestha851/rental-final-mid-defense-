@@ -102,6 +102,9 @@ async function initDb() {
     await pool.query(`ALTER TABLE properties ADD COLUMN category VARCHAR(50) DEFAULT NULL AFTER location`);
   } catch {}
   try {
+    await pool.query(`ALTER TABLE properties ADD COLUMN property_type VARCHAR(50) DEFAULT NULL AFTER category`);
+  } catch {}
+  try {
     await pool.query(`ALTER TABLE properties ADD COLUMN address VARCHAR(255) DEFAULT NULL AFTER category`);
   } catch {}
   try {

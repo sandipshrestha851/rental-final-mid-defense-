@@ -4,6 +4,7 @@ import React from 'react'
 import { useState, useEffect } from 'react'
 // import {useNavigate} from 'react-router-dom'
 import Tenant_Navbar from '../layout/Tenant_Navbar'
+import TenantDashboard from './TenantDashboard'
 import Reservations from './MyReservations'
 import { useRouter } from "next/navigation";
 import Search from "./Search"
@@ -21,7 +22,7 @@ const LandLordPage = () => {
                 setNavto={setNavto}
             />
             <main className={`${navto=="messages"?"bg-[#0f0f1a]":""} ml-[15%] w-[85%] h-screen p-4`}>
-                {navto === "dashboard" && <DashboardMain navto={navto} />}
+                {navto === "dashboard" && <TenantDashboard/>}
                 {navto === "search" && <Search />}
                 {navto === "bookings" && <MyBookings />}
                 {navto === "messages" && <ChatApp embedded loginPath="/signin" />}
