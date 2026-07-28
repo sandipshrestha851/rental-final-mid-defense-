@@ -16,6 +16,8 @@ const bookingRoutes = require('./routes/bookingRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const reviewRoutes = require('./routes/reviewRoutes');
+const profileRoutes = require('./routes/profileRoutes');
+const adminDashboardRoutes = require('./routes/adminDashboardRoutes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 
 const app = express();
@@ -65,6 +67,8 @@ app.use('/api', bookingRoutes);
 app.use('/api', notificationRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api', reviewRoutes);
+app.use('/api', profileRoutes);
+app.use('/api', adminDashboardRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

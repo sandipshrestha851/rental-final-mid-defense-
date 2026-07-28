@@ -73,7 +73,10 @@ const Admin_Navbar = ({ navto, setNavto }: SideNavbarProps) => {
             <li
               className={`${navto === "bookings" ? "bg-[#282048] text-[#c7f1ff]" : ""
                 } flex gap-1.5 items-center cursor-pointer p-2 rounded-xl transition-all duration-100 hover:bg-[#ffffff0d] hover:text-[#c7f1ff] w-[95%]`}
-              onClick={() => setNavto("bookings")}
+              onClick={() => {
+                setNavto("bookings");
+                router.push("/admin/bookings");
+              }}
             >
               <Calendar className="w-5 h-5 shrink-0" />
               <span>Bookings</span>

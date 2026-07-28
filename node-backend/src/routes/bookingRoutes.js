@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { tokenRequired } = require('../middleware/authMiddleware');
+const { tokenRequired, adminOnly } = require('../middleware/authMiddleware');
 const bookingController = require('../controllers/bookingController');
 const receiptController = require('../controllers/receiptController');
 
@@ -8,6 +8,7 @@ const router = Router();
 router.post('/bookings', tokenRequired, bookingController.createBooking);
 router.get('/bookings/guest/:guestId', tokenRequired, bookingController.getGuestBookings);
 router.get('/bookings/landlord', tokenRequired, bookingController.getLandlordBookings);
+router.get('/admin/bookings', tokenRequired, adminOnly, bookingController.getAdminBookings);
 router.get('/bookings/stats', tokenRequired, bookingController.getStats);
 router.get('/bookings/today-checkins', tokenRequired, bookingController.getTodayCheckIns);
 router.get('/bookings/today-checkouts', tokenRequired, bookingController.getTodayCheckOuts);

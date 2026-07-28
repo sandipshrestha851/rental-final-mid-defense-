@@ -38,6 +38,21 @@ async function findByLandlordId(landlordId, status) {
   return rows;
 }
 
+async function findAll(status) {
+  let sql = `SELECT ${BOOKING_COLUMNS}, p.title AS propertyName, p.image_url AS imageUrl, p.location, p.price, p.rating, p.landlord_id AS landlordId, u.full_name AS guestName, u.email AS guestEmail, u.phone AS guestPhone, l.full_name AS landlordName, l.email AS landlordEmail ${BOOKING_JOINS} LEFT JOIN users l ON p.landlord_id = l.id`;
+  const params = [];
+
+  if (status && status !== 'all') {
+    const statuses = status.split(',');
+    sql += ` WHERE b.status IN (${statuses.map(() => '?').join(',')})`;
+    params.push(...statuses);
+  }
+
+  sql += ' ORDER BY b.created_at DESC';
+  const [rows] = await pool.query(sql, params);
+  return rows;
+}
+
 async function create(data) {
   const [result] = await pool.query(
     `INSERT INTO bookings (property_id, guest_id, check_in, check_out, guests, total_price, status, special_requests) VALUES (?, ?, ?, ?, ?, ?, 'pending', ?)`,
@@ -178,7 +193,7 @@ async function getRecentActivity(landlordId, limit = 10) {
 }
 
 module.exports = {
-  findById, findByGuestId, findByLandlordId, create, updateStatus,
+  findById, findByGuestId, findByLandlordId, findAll, create, updateStatus,
   addHistory, getHistory, checkAvailability, getUnavailableDates,
   getStats, findByDateRange, getTodayCheckIns, getTodayCheckOuts,
   getCurrentGuests, getRecentActivity,

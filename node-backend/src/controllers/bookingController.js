@@ -114,6 +114,16 @@ async function getLandlordBookings(req, res, next) {
   }
 }
 
+async function getAdminBookings(req, res, next) {
+  try {
+    const { status } = req.query;
+    const bookings = await bookingModel.findAll(status);
+    res.json(bookings);
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function approveBooking(req, res, next) {
   try {
     const { id } = req.params;
@@ -342,7 +352,7 @@ async function getRecentActivity(req, res, next) {
 }
 
 module.exports = {
-  createBooking, getBookingById, getGuestBookings, getLandlordBookings,
+  createBooking, getBookingById, getGuestBookings, getLandlordBookings, getAdminBookings,
   approveBooking, rejectBooking, cancelBooking, completeBooking,
   checkAvailability, getUnavailableDates, getHistory, getStats,
   getTodayCheckIns, getTodayCheckOuts, getCurrentGuests, getRecentActivity,

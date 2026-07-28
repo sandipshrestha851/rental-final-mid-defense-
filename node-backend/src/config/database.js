@@ -38,11 +38,17 @@ async function initDb() {
       gender VARCHAR(30) DEFAULT NULL,
       date_of_birth DATE DEFAULT NULL,
       bio TEXT DEFAULT NULL,
+      address VARCHAR(255) DEFAULT NULL,
+      avatar VARCHAR(500) DEFAULT NULL,
+      is_suspended TINYINT(1) NOT NULL DEFAULT 0,
       role VARCHAR(30) DEFAULT NULL,
       password_hash VARCHAR(255) NOT NULL,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+  try { await pool.query(`ALTER TABLE users ADD COLUMN address VARCHAR(255) DEFAULT NULL AFTER bio`); } catch {}
+  try { await pool.query(`ALTER TABLE users ADD COLUMN avatar VARCHAR(500) DEFAULT NULL AFTER address`); } catch {}
+  try { await pool.query(`ALTER TABLE users ADD COLUMN is_suspended TINYINT(1) NOT NULL DEFAULT 0 AFTER avatar`); } catch {}
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS messages (

@@ -17,6 +17,7 @@ import type {
   SearchResults,
   ShareInfo,
   User,
+  ProfileResponse,
 } from "./types";
 
 export const API_URL =
@@ -310,6 +311,11 @@ export const api = {
     return request<Booking[]>(`/api/bookings/landlord${params}`);
   },
 
+  getAdminBookings(status?: string): Promise<Booking[]> {
+    const params = status ? `?status=${status}` : '';
+    return request<Booking[]>(`/api/admin/bookings${params}`);
+  },
+
   approveBooking(id: number): Promise<{ message: string; booking: Booking }> {
     return request<{ message: string; booking: Booking }>(`/api/bookings/${id}/approve`, { method: 'PUT' });
   },
@@ -383,6 +389,23 @@ export const api = {
   getMe(): Promise<{ user: { id: number; full_name: string; email: string; role?: string | null; created_at?: string } }> {
     return request("/api/auth/me");
   },
+
+  getProfile(): Promise<ProfileResponse> { return request<ProfileResponse>('/api/profile'); },
+  updateProfile(payload: { full_name: string; phone?: string; address?: string; bio?: string; date_of_birth?: string }): Promise<{ message: string; user: User }> { return request('/api/profile', { method: 'PUT', body: JSON.stringify(payload) }); },
+  async uploadProfileAvatar(file: File): Promise<{ message: string; user: User }> {
+    const form = new FormData(); form.append('avatar', file);
+    const res = await fetch(`${API_URL}/api/profile/avatar`, { method: 'POST', body: form, credentials: 'include', headers: getCsrfToken() ? { 'X-CSRF-Token': getCsrfToken() } : {} });
+    const data = await res.json().catch(() => ({})); if (!res.ok) throw new ApiError(data.message || 'Avatar upload failed', res.status); return data;
+  },
+  deleteProfileAvatar(): Promise<{ message: string }> { return request('/api/profile/avatar', { method: 'DELETE' }); },
+  changePassword(payload: { currentPassword: string; newPassword: string; confirmPassword: string }): Promise<{ message: string }> { return request('/api/profile/change-password', { method: 'PUT', body: JSON.stringify(payload) }); },
+  deleteProfile(currentPassword: string): Promise<{ message: string }> { return request('/api/profile', { method: 'DELETE', body: JSON.stringify({ currentPassword }) }); },
+  getAdminDashboard(): Promise<Record<string, number>> { return request('/api/admin/dashboard'); },
+  getAdminDashboardCharts(): Promise<{ revenue: { label: string; revenue: number }[]; users: { label: string; tenants: number; landlords: number }[]; bookings: { label: string; pending: number; confirmed: number; completed: number; cancelled: number }[]; properties: { status: string; count: number }[] }> { return request('/api/admin/dashboard/charts'); },
+  getAdminUserDetails(id: number): Promise<{ user: User & { is_suspended: number }; bookings: Booking[]; properties: Property[]; activity: { totalBookings: number; completedBookings: number; cancelledBookings: number } }> { return request(`/api/admin/users/${id}`); },
+  setUserSuspension(id: number, suspended: boolean): Promise<{ message: string }> { return request(`/api/admin/users/${id}/suspension`, { method: 'PUT', body: JSON.stringify({ suspended }) }); },
+  resetUserPassword(id: number, password: string): Promise<{ message: string }> { return request(`/api/admin/users/${id}/password`, { method: 'PUT', body: JSON.stringify({ password }) }); },
+  deleteAdminUser(id: number): Promise<{ message: string }> { return request(`/api/admin/users/${id}`, { method: 'DELETE' }); },
 
   async refreshToken(): Promise<void> {
     await request("/api/auth/refresh", { method: "POST" });

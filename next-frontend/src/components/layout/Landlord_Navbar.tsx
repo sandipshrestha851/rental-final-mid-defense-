@@ -92,7 +92,7 @@ const Landlord_Navbar = ({navto,setNavto}:SideNavbarProps) => {
           <div
             className={`${isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"} Logout text-center w-[90%] mx-auto p-4.5 bg-[#252540] rounded-2xl space-y-1 transition-all duration-500`}
           >
-            <p className="profileBtn flex gap-1.5 text-[#6e83a0] cursor-pointer p-2 rounded-xl transition-all duration-200 hover:bg-[#ffffff0d] hover:text-white">
+            <p onClick={() => setNavto("profile")} className="profileBtn flex gap-1.5 text-[#6e83a0] cursor-pointer p-2 rounded-xl transition-all duration-200 hover:bg-[#ffffff0d] hover:text-white">
               <User />
               <span>Profile</span>
             </p>

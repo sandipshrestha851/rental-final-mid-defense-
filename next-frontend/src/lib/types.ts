@@ -7,6 +7,8 @@ export interface User {
   gender?: string | null;
   date_of_birth?: string | null;
   bio?: string | null;
+  address?: string | null;
+  avatar?: string | null;
   role?: string | null;
   is_online?: boolean;
   created_at?: string | null;
@@ -18,7 +20,10 @@ export interface AuthUser {
   full_name: string;
   email: string;
   role?: string | null;
+  avatar?: string | null;
 }
+
+export interface ProfileResponse { user: User; stats: { totalProperties: number; totalBookings: number; completedBookings: number; cancelledBookings: number }; }
 
 /** A single chat message between two users. */
 export interface Message {
@@ -196,6 +201,8 @@ export interface Booking {
   guestEmail?: string | null;
   guestPhone?: string | null;
   landlordId?: number | null;
+  landlordName?: string | null;
+  landlordEmail?: string | null;
   history?: BookingHistoryEntry[];
 }
 

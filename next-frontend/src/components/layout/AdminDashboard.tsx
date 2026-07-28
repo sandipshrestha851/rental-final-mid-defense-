@@ -17,12 +17,14 @@ import {
   XCircle
 } from "lucide-react";
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ onNavigate }: { onNavigate: (page: string) => void }) => {
   const router = useRouter();
   const { user, ready } = useAuth();
 
   // Dashboard logic & statistics states
   const [users, setUsers] = useState<User[]>([]);
+  const [summary, setSummary] = useState<Record<string, number> | null>(null);
+  const [revenueData, setRevenueData] = useState<{ month: string; amount: number; label: string }[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [currentTime, setCurrentTime] = useState("");
   const [darkMode, setDarkMode] = useState(false);
@@ -65,10 +67,14 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (ready && user && user.role === "admin") {
       setLoadingUsers(true);
-      api.getUsers()
-        .then((data) => {
-          console.log(data)
+      Promise.all([api.getUsers(), api.getAllProperties(), api.getAdminDashboard().catch(() => null), api.getAdminDashboardCharts().catch(() => null)])
+        .then(([data, properties, dashboard, charts]) => {
           setUsers(data);
+          setSummary(dashboard ?? {
+            totalProperties: properties.length,
+            activeProperties: properties.filter((property) => property.status === "Active").length,
+          });
+          if (charts) setRevenueData(charts.revenue.map((item) => ({ month: item.label, amount: Number(item.revenue), label: `$${Number(item.revenue).toLocaleString()}` })));
           addToast("Dashboard analytics synchronized.", "success");
         })
         .catch((err) => {
@@ -82,17 +88,17 @@ const AdminDashboard = () => {
   }, [ready, user]);
 
   // Stats calculation
-  const totalUsers = users.length;
-  const landlordsCount = users.filter((u) => u.role === "landlord").length;
-  const tenantsCount = users.filter((u) => u.role === "tenant").length;
+  const totalUsers = summary?.totalUsers ?? users.length;
+  const landlordsCount = summary?.totalLandlords ?? users.filter((u) => u.role === "landlord").length;
+  const tenantsCount = summary?.totalTenants ?? users.filter((u) => u.role === "tenant").length;
   
 
   // Actual total values mapping the dashboard screenshot metrics
-  const totalPropertiesCount = 20; // 20 properties
-  const totalBookingsCount = 20; // 20 bookings
+  const totalPropertiesCount = summary?.activeProperties ?? 0;
+  const totalBookingsCount = summary?.totalBookings ?? 0;
 
   // Mock revenue coordinates calculation
-  const revenueData = [
+  const fallbackRevenueData = [
     { month: "Jan", amount: 55000, label: "$55k" },
     { month: "Feb", amount: 58000, label: "$58k" },
     { month: "Mar", amount: 65000, label: "$65k" },
@@ -106,6 +112,7 @@ const AdminDashboard = () => {
     { month: "Nov", amount: 108000, label: "$108k" },
     { month: "Dec", amount: 118000, label: "$118k" }
   ];
+  const chartRevenueData = revenueData.length ? revenueData : fallbackRevenueData;
 
   const chartHeight = 200;
   const chartWidth = 560;
@@ -118,12 +125,12 @@ const AdminDashboard = () => {
   const chartInnerHeight = chartHeight - chartPaddingTop - chartPaddingBottom;
 
   const points = useMemo(() => {
-    return revenueData.map((d, i) => {
-      const x = chartPaddingLeft + (i / (revenueData.length - 1)) * chartInnerWidth;
+    return chartRevenueData.map((d, i) => {
+      const x = chartPaddingLeft + (i / Math.max(chartRevenueData.length - 1, 1)) * chartInnerWidth;
       const y = chartPaddingTop + chartInnerHeight - (d.amount / 130000) * chartInnerHeight;
       return { x, y, ...d };
     });
-  }, [chartInnerWidth, chartInnerHeight]);
+  }, [chartInnerWidth, chartInnerHeight, chartRevenueData]);
 
   const linePathStr = useMemo(() => {
     return points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
@@ -344,7 +351,7 @@ const AdminDashboard = () => {
 
                     {/* Interactive hover overlays */}
                     {points.map((p, idx) => {
-                      const barWidth = chartInnerWidth / revenueData.length;
+                      const barWidth = chartInnerWidth / chartRevenueData.length;
                       const barX = p.x - barWidth / 2;
                       return (
                         <rect
@@ -514,7 +521,7 @@ const AdminDashboard = () => {
 
                     <button
                       onClick={() => {
-                        addToast("Manage Users registry selection - Coming soon", "info");
+                        onNavigate("users");
                       }}
                       className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
                         }`}
@@ -526,7 +533,7 @@ const AdminDashboard = () => {
 
                     <button
                       onClick={() => {
-                        addToast("Property Approvals listing - Coming soon", "info");
+                        onNavigate("properties");
                       }}
                       className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
                         }`}
@@ -538,7 +545,7 @@ const AdminDashboard = () => {
 
                     <button
                       onClick={() => {
-                        addToast("Booking Overview schedules - Coming soon", "info");
+                        onNavigate("bookings");
                       }}
                       className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
                         }`}
@@ -550,7 +557,8 @@ const AdminDashboard = () => {
 
                     <button
                       onClick={() => {
-                        addToast("Platform Configuration settings - Coming soon", "info");
+                        setDarkMode((current) => !current);
+                        addToast(`Dashboard ${darkMode ? "light" : "dark"} display enabled.`, "success");
                       }}
                       className={`p-4 rounded-xl border text-left cursor-pointer transition-all hover:scale-102 hover:shadow-md ${darkMode ? "bg-slate-800/60 border-slate-700/60 hover:bg-slate-700/60 text-white" : "bg-slate-50 border-slate-100 hover:bg-white text-slate-700"
                         }`}

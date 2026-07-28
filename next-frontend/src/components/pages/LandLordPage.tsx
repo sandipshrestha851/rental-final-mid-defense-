@@ -10,6 +10,7 @@ import { DashboardMain } from "@/components/organisms/dashboard/DashboardMain";
 import { ChatApp } from "@/components/organisms/chat/ChatApp";
 import PropertiesPage from "./PropertiesPage"
 import ReviewsPage from "./ReviewsPage"
+import ProfilePage from "./ProfilePage"
 
 const LandLordPage = () => {
   const [navto, setNavto] = useState<string>("dashboard")
@@ -25,6 +26,7 @@ const LandLordPage = () => {
         {navto == "properties" && <PropertiesPage />}
         {navto == "reservation" && <Reservations />}
         {navto == "reviews" && <ReviewsPage />}
+        {navto === "profile" && <ProfilePage />}
         {navto === "messages" && <ChatApp embedded loginPath="/signin" />}
       </main>
     </div>
