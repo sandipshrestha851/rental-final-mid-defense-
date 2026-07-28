@@ -374,16 +374,42 @@ export const api = {
     return `${API_URL}/api/bookings/${id}/receipt`;
   },
 
-  getNotifications(): Promise<{ notifications: Notification[]; unreadCount: number }> {
-    return request<{ notifications: Notification[]; unreadCount: number }>('/api/notifications');
+  getNotifications(page = 1, limit = 10): Promise<{
+    notifications: Notification[];
+    unreadCount: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    totalCount: number;
+  }> {
+    return request<{
+      notifications: Notification[];
+      unreadCount: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+      totalCount: number;
+    }>(`/api/notifications?page=${page}&limit=${limit}`);
+  },
+
+  getUnreadCount(): Promise<{ count: number }> {
+    return request<{ count: number }>('/api/notifications/unread-count');
   },
 
   markNotificationRead(id: number): Promise<void> {
-    return request(`/api/notifications/${id}/read`, { method: 'PUT' });
+    return request(`/api/notifications/${id}/read`, { method: 'PATCH' });
   },
 
   markAllNotificationsRead(): Promise<void> {
-    return request('/api/notifications/read-all', { method: 'PUT' });
+    return request('/api/notifications/read-all', { method: 'PATCH' });
+  },
+
+  deleteNotification(id: number): Promise<void> {
+    return request(`/api/notifications/${id}`, { method: 'DELETE' });
+  },
+
+  clearReadNotifications(): Promise<void> {
+    return request('/api/notifications/read', { method: 'DELETE' });
   },
 
   getMe(): Promise<{ user: { id: number; full_name: string; email: string; role?: string | null; created_at?: string } }> {

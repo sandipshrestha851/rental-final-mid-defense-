@@ -60,6 +60,24 @@ const authService = {
       full_name, email, phone, gender, date_of_birth, bio, role, password_hash,
     });
 
+    try {
+      const newUser = await userModel.findByEmail(email);
+      if (newUser) {
+        const NotificationService = require('./notificationService');
+        await NotificationService.notify({
+          recipientRole: 'admin',
+          senderUserId: newUser.id,
+          type: 'user_registered',
+          title: 'New User Registered',
+          message: `A new ${role || 'tenant'} "${full_name}" has registered with email: ${email}`,
+          referenceType: 'user',
+          referenceId: newUser.id
+        });
+      }
+    } catch (notifyErr) {
+      logger.error('Failed to trigger registration notification:', notifyErr.message);
+    }
+
     return { message: 'User registered successfully' };
   },
 

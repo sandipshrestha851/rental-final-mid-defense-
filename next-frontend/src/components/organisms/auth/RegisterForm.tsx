@@ -56,8 +56,71 @@ export function RegisterForm() {
     setError("");
     setSuccess("");
 
-    // The only hard client-side check: the two passwords must match.
-    if (form.password !== form.confirm_password) {
+    const name = form.full_name.trim();
+    const email = form.email.trim();
+    const phone = form.phone.trim();
+    const password = form.password;
+
+    if (!name) {
+      setError("Full Name is required.");
+      return;
+    }
+    if (name.length < 2) {
+      setError("Full Name must be at least 2 characters.");
+      return;
+    }
+    if (/\d/.test(name)) {
+      setError("Full Name cannot contain numbers.");
+      return;
+    }
+
+    if (!email) {
+      setError("Email is required.");
+      return;
+    }
+    // Check if email format looks like a phone number
+    if (/^\+?[\d\s\-()]{7,20}$/.test(email)) {
+      setError("Email cannot be a phone number.");
+      return;
+    }
+    // Simple email regex validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address (e.g., name@example.com).");
+      return;
+    }
+
+    if (phone) {
+      const phoneRegex = /^\d{10}$/;
+      if (!phoneRegex.test(phone)) {
+        setError("Phone number must be exactly 10 digits and contain only numbers.");
+        return;
+      }
+    }
+
+    // Password strength checks matching the backend rules
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError("Password must contain at least one uppercase letter.");
+      return;
+    }
+    if (!/[a-z]/.test(password)) {
+      setError("Password must contain at least one lowercase letter.");
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError("Password must contain at least one number.");
+      return;
+    }
+    if (!/[^A-Za-z0-9]/.test(password)) {
+      setError("Password must contain at least one special character.");
+      return;
+    }
+
+    if (password !== form.confirm_password) {
       setError("Passwords do not match.");
       return;
     }
@@ -65,13 +128,13 @@ export function RegisterForm() {
     setLoading(true);
     try {
       await api.register({
-        full_name: form.full_name.trim(),
-        email: form.email.trim(),
-        phone: form.phone.trim(),
+        full_name: name,
+        email: email,
+        phone: phone,
         gender: form.gender,
         date_of_birth: form.date_of_birth,
         bio: form.bio.trim(),
-        password: form.password,
+        password: password,
       });
 
       setSuccess("Account created successfully! Redirecting to login...");

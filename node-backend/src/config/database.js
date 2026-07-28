@@ -139,18 +139,72 @@ async function initDb() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS notifications (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      user_id INT NOT NULL,
+      recipient_user_id INT DEFAULT NULL,
+      sender_user_id INT DEFAULT NULL,
+      type VARCHAR(50) DEFAULT 'info',
       title VARCHAR(255) NOT NULL,
       message TEXT NOT NULL,
-      type VARCHAR(50) DEFAULT 'info',
-      related_id INT DEFAULT NULL,
+      reference_type VARCHAR(50) DEFAULT NULL,
+      reference_id VARCHAR(255) DEFAULT NULL,
       is_read TINYINT(1) DEFAULT 0,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-      INDEX idx_notifications_user (user_id),
-      INDEX idx_notifications_read (is_read)
+      FOREIGN KEY (recipient_user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (sender_user_id) REFERENCES users(id) ON DELETE CASCADE,
+      INDEX idx_notifications_recipient (recipient_user_id),
+      INDEX idx_notifications_recipient_read (recipient_user_id, is_read),
+      INDEX idx_notifications_recipient_created (recipient_user_id, created_at),
+      INDEX idx_notifications_created_at (created_at)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
   `);
+
+  try {
+    const [columns] = await pool.query("SHOW COLUMNS FROM notifications");
+    const columnNames = columns.map(c => c.Field);
+    if (!columnNames.includes('recipient_user_id')) {
+      logger.info('Upgrading notifications table schema...');
+      try {
+        await pool.query('ALTER TABLE notifications DROP FOREIGN KEY notifications_ibfk_1');
+      } catch (e) {
+        logger.warn('Could not drop foreign key notifications_ibfk_1:', e.message);
+      }
+      try {
+        await pool.query('ALTER TABLE notifications CHANGE COLUMN user_id recipient_user_id INT NULL DEFAULT NULL');
+      } catch (e) {
+        logger.error('Error changing column user_id:', e.message);
+      }
+      try {
+        await pool.query('ALTER TABLE notifications ADD CONSTRAINT fk_notifications_recipient FOREIGN KEY (recipient_user_id) REFERENCES users(id) ON DELETE CASCADE');
+      } catch (e) {}
+      try {
+        await pool.query('ALTER TABLE notifications ADD COLUMN sender_user_id INT NULL DEFAULT NULL AFTER recipient_user_id');
+        await pool.query('ALTER TABLE notifications ADD CONSTRAINT fk_notifications_sender FOREIGN KEY (sender_user_id) REFERENCES users(id) ON DELETE CASCADE');
+      } catch (e) {}
+      try {
+        await pool.query('ALTER TABLE notifications ADD COLUMN reference_type VARCHAR(50) NULL DEFAULT NULL AFTER type');
+      } catch (e) {}
+      try {
+        await pool.query('ALTER TABLE notifications CHANGE COLUMN related_id reference_id VARCHAR(255) NULL DEFAULT NULL');
+      } catch (e) {}
+      try {
+        await pool.query('ALTER TABLE notifications DROP INDEX idx_notifications_user');
+      } catch (e) {}
+      try {
+        await pool.query('CREATE INDEX idx_notifications_recipient ON notifications (recipient_user_id)');
+      } catch (e) {}
+      try {
+        await pool.query('CREATE INDEX idx_notifications_recipient_read ON notifications (recipient_user_id, is_read)');
+      } catch (e) {}
+      try {
+        await pool.query('CREATE INDEX idx_notifications_recipient_created ON notifications (recipient_user_id, created_at)');
+      } catch (e) {}
+      try {
+        await pool.query('CREATE INDEX idx_notifications_created_at ON notifications (created_at)');
+      } catch (e) {}
+      logger.info('Notifications table schema upgraded successfully.');
+    }
+  } catch (err) {
+    logger.error('Error checking notifications table schema:', err.message);
+  }
 
   try {
     await pool.query(`ALTER TABLE properties ADD COLUMN landlord_id INT NOT NULL AFTER id`);

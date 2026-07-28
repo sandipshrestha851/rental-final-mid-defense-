@@ -225,7 +225,8 @@ export interface Notification {
   title: string;
   message: string;
   type: string;
-  related_id: number | null;
+  reference_id?: string | number | null;
+  related_id: string | number | null;
   is_read: number;
   created_at: string;
 }

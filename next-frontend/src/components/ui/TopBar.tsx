@@ -1,8 +1,7 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
-import { Search, Bell } from "lucide-react";
+import { Search } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { api } from "@/lib/api";
+import NotificationDropdown from "./NotificationDropdown";
 
 interface TopBarProps {
   role: string;
@@ -13,22 +12,6 @@ interface TopBarProps {
 
 export default function TopBar({ role, page, searchQuery, onSearchChange }: TopBarProps) {
   const { user } = useAuth();
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  const fetchUnread = useCallback(async () => {
-    try {
-      const res = await api.getNotifications();
-      setUnreadCount(res.unreadCount);
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchUnread();
-    const interval = setInterval(fetchUnread, 30000);
-    return () => clearInterval(interval);
-  }, [fetchUnread]);
 
   const avatarSrc = user?.full_name
     ? `https://ui-avatars.com/api/?name=${encodeURIComponent(user.full_name)}&background=5E35B1&color=fff&size=38`
@@ -51,18 +34,13 @@ export default function TopBar({ role, page, searchQuery, onSearchChange }: TopB
             className="bg-transparent border-none outline-none w-full text-sm text-[#1c1b2e] placeholder:text-[#9997ad]"
           />
         </div>
-        <div className="relative text-[#555267] flex cursor-pointer">
-          <Bell className="w-5 h-5" />
-          {unreadCount > 0 ? (
-            <span className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full px-1 border-[1.5px] border-white">
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
-          ) : (
-            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border-[1.5px] border-white" />
-          )}
-        </div>
+        
+        {/* Real-time Notification Dropdown */}
+        <NotificationDropdown />
+        
         <img className="w-9.5 h-9.5 rounded-full object-cover bg-[#d8d5ec]" src={avatarSrc} alt="Avatar" />
       </div>
     </header>
   );
 }
+

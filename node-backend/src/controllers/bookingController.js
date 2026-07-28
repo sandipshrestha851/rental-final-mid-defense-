@@ -1,7 +1,7 @@
 const bookingModel = require('../models/bookingModel');
 const propertyModel = require('../models/propertyModel');
 const userModel = require('../models/userModel');
-const notificationModel = require('../models/notificationModel');
+const NotificationService = require('../services/notificationService');
 
 async function createBooking(req, res, next) {
   try {
@@ -46,12 +46,25 @@ async function createBooking(req, res, next) {
       totalAmount, specialRequests,
     });
 
-    await notificationModel.create(
-      property.landlord_id,
-      'New Booking Request',
-      `${property.title} has a new booking request from ${checkIn} to ${checkOut}.`,
-      'booking', booking.id
-    );
+    await NotificationService.notify({
+      recipientUserId: property.landlord_id,
+      senderUserId: guest_id,
+      type: 'booking_request',
+      title: 'New Booking Request',
+      message: `${property.title} has a new booking request from ${checkIn} to ${checkOut}.`,
+      referenceType: 'booking',
+      referenceId: booking.id
+    });
+
+    await NotificationService.notify({
+      recipientRole: 'admin',
+      senderUserId: guest_id,
+      type: 'booking_created',
+      title: 'New Booking Created',
+      message: `A new booking request has been created for ${property.title} by guest ID ${guest_id}.`,
+      referenceType: 'booking',
+      referenceId: booking.id
+    });
 
     res.status(201).json({ message: 'Booking created successfully', bookingId: booking.id, booking });
   } catch (err) {
@@ -146,11 +159,15 @@ async function approveBooking(req, res, next) {
 
     const updated = await bookingModel.updateStatus(id, 'confirmed', req.userId, 'Approved by landlord');
 
-    await notificationModel.create(
-      booking.guest_id, 'Booking Confirmed',
-      `Your booking for ${property.title} has been confirmed.`,
-      'booking', booking.id
-    );
+    await NotificationService.notify({
+      recipientUserId: booking.guest_id,
+      senderUserId: req.userId,
+      type: 'booking_accepted',
+      title: 'Booking Confirmed',
+      message: `Your booking for ${property.title} has been confirmed.`,
+      referenceType: 'booking',
+      referenceId: booking.id
+    });
 
     res.json({ message: 'Booking confirmed', booking: updated });
   } catch (err) {
@@ -175,11 +192,15 @@ async function rejectBooking(req, res, next) {
 
     const updated = await bookingModel.updateStatus(id, 'rejected', req.userId, reason || 'Rejected by landlord');
 
-    await notificationModel.create(
-      booking.guest_id, 'Booking Rejected',
-      `Your booking request for ${property.title} has been rejected.${reason ? ` Reason: ${reason}` : ''}`,
-      'booking', booking.id
-    );
+    await NotificationService.notify({
+      recipientUserId: booking.guest_id,
+      senderUserId: req.userId,
+      type: 'booking_rejected',
+      title: 'Booking Rejected',
+      message: `Your booking request for ${property.title} has been rejected.${reason ? ` Reason: ${reason}` : ''}`,
+      referenceType: 'booking',
+      referenceId: booking.id
+    });
 
     res.json({ message: 'Booking rejected', booking: updated });
   } catch (err) {
@@ -219,12 +240,42 @@ async function cancelBooking(req, res, next) {
 
     const updated = await bookingModel.updateStatus(id, cancelStatus, req.userId, reason || 'Cancelled');
 
-    const notifyUserId = isOwner ? property.landlord_id : booking.guest_id;
-    await notificationModel.create(
-      notifyUserId, 'Booking Cancelled',
-      `Booking for ${property.title} has been cancelled.${reason ? ` Reason: ${reason}` : ''}`,
-      'booking', booking.id
-    );
+    if (isAdmin) {
+      // Admin cancelled, notify BOTH tenant and landlord
+      await NotificationService.notify({
+        recipientUserId: booking.guest_id,
+        senderUserId: req.userId,
+        type: 'booking_cancelled_by_admin',
+        title: 'Booking Cancelled by Admin',
+        message: `Booking for ${property.title} has been cancelled by administrator.${reason ? ` Reason: ${reason}` : ''}`,
+        referenceType: 'booking',
+        referenceId: booking.id
+      });
+      await NotificationService.notify({
+        recipientUserId: property.landlord_id,
+        senderUserId: req.userId,
+        type: 'booking_cancelled_by_admin',
+        title: 'Booking Cancelled by Admin',
+        message: `Booking for ${property.title} has been cancelled by administrator.${reason ? ` Reason: ${reason}` : ''}`,
+        referenceType: 'booking',
+        referenceId: booking.id
+      });
+    } else {
+      // Notify the other party
+      const notifyUserId = isOwner ? property.landlord_id : booking.guest_id;
+      const title = isOwner ? 'Booking Cancelled by Tenant' : 'Booking Cancelled';
+      const nType = isOwner ? 'booking_cancelled_by_tenant' : 'booking_cancelled';
+
+      await NotificationService.notify({
+        recipientUserId: notifyUserId,
+        senderUserId: req.userId,
+        type: nType,
+        title,
+        message: `Booking for ${property.title} has been cancelled.${reason ? ` Reason: ${reason}` : ''}`,
+        referenceType: 'booking',
+        referenceId: booking.id
+      });
+    }
 
     res.json({ message: 'Booking cancelled', booking: updated });
   } catch (err) {
@@ -248,11 +299,25 @@ async function completeBooking(req, res, next) {
 
     const updated = await bookingModel.updateStatus(id, 'completed', req.userId, 'Stay completed');
 
-    await notificationModel.create(
-      booking.guest_id, 'Stay Completed',
-      `Your stay at ${property.title} has been marked as completed. Thank you!`,
-      'booking', booking.id
-    );
+    await NotificationService.notify({
+      recipientUserId: booking.guest_id,
+      senderUserId: req.userId,
+      type: 'booking_completed',
+      title: 'Booking Completed',
+      message: `Your stay at ${property.title} has been marked as completed. Thank you!`,
+      referenceType: 'booking',
+      referenceId: booking.id
+    });
+
+    await NotificationService.notify({
+      recipientUserId: property.landlord_id,
+      senderUserId: req.userId,
+      type: 'booking_completed',
+      title: 'Booking Completed',
+      message: `Booking for ${property.title} from ${booking.check_in || booking.checkIn} to ${booking.check_out || booking.checkOut} has been completed.`,
+      referenceType: 'booking',
+      referenceId: booking.id
+    });
 
     res.json({ message: 'Booking completed', booking: updated });
   } catch (err) {

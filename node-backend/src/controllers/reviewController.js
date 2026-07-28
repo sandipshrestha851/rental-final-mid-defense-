@@ -1,4 +1,6 @@
 const dashboardModel = require('../models/dashboardModel');
+const { pool } = require('../config/database');
+const NotificationService = require('../services/notificationService');
 
 const reviewController = {
   async getReviews(req, res, next) {
@@ -72,6 +74,22 @@ const reviewController = {
         return res.status(400).json({ message: 'Rating must be between 1 and 5' });
       }
       const id = await dashboardModel.createReview(propertyId, req.userId, rating, comment);
+
+      // Trigger notification for landlord
+      const propertyModel = require('../models/propertyModel');
+      const property = await propertyModel.findById(propertyId);
+      if (property) {
+        await NotificationService.notify({
+          recipientUserId: property.landlord_id,
+          senderUserId: req.userId,
+          type: 'new_review',
+          title: 'New Review Received',
+          message: `Your property "${property.title}" received a ${rating}-star review.`,
+          referenceType: 'review',
+          referenceId: id
+        });
+      }
+
       res.status(201).json({ id, message: 'Review created' });
     } catch (err) {
       next(err);
@@ -128,6 +146,21 @@ const reviewController = {
         return res.status(404).json({ message: 'Review not found' });
       }
       const id = await dashboardModel.createReply(Number(req.params.id), req.userId, reply.trim());
+
+      // Trigger notification for guest/tenant
+      const propertyModel = require('../models/propertyModel');
+      const property = await propertyModel.findById(review.property_id);
+      const propertyTitle = property ? property.title : 'your property';
+      await NotificationService.notify({
+        recipientUserId: review.user_id,
+        senderUserId: req.userId,
+        type: 'review_reply',
+        title: 'Review Replied',
+        message: `The landlord replied to your review on "${propertyTitle}".`,
+        referenceType: 'review',
+        referenceId: review.id
+      });
+
       res.status(201).json({ id, message: 'Reply created' });
     } catch (err) {
       next(err);

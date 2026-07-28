@@ -18,15 +18,27 @@ const passwordRules = body('password')
 const registerRules = [
   body('full_name')
     .trim().notEmpty().withMessage('Full name is required')
-    .isLength({ max: 100 }).withMessage('Full name must be under 100 characters'),
+    .isLength({ max: 100 }).withMessage('Full name must be under 100 characters')
+    .custom((value) => {
+      if (/\d/.test(value)) {
+        throw new Error('Full name cannot contain numbers');
+      }
+      return true;
+    }),
   body('email')
     .trim().notEmpty().withMessage('Email is required')
+    .custom((value) => {
+      if (/^\+?[\d\s\-()]+$/.test(value)) {
+        throw new Error('Email cannot be a phone number');
+      }
+      return true;
+    })
     .isEmail().withMessage('Valid email is required')
     .normalizeEmail(),
   passwordRules,
   body('phone')
     .optional({ values: 'falsy' })
-    .matches(/^[\d\s\-+()]{7,20}$/).withMessage('Invalid phone number format'),
+    .matches(/^\d{10}$/).withMessage('Phone number must be exactly 10 digits and contain only numbers'),
   body('gender')
     .optional({ values: 'falsy' })
     .isIn(['male', 'female', 'other', 'prefer_not_to_say']).withMessage('Invalid gender value'),

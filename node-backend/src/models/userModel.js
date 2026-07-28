@@ -15,12 +15,13 @@ const userModel = {
   },
 
   async create({ full_name, email, phone, gender, date_of_birth, bio, role, password_hash }) {
-    await pool.query(
+    const [result] = await pool.query(
       `INSERT INTO users
         (full_name, email, phone, gender, date_of_birth, bio, role, password_hash)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
       [full_name, email, phone, gender, date_of_birth, bio, role, password_hash]
     );
+    return result.insertId;
   },
 
   async findAllExcept(excludeUserId) {

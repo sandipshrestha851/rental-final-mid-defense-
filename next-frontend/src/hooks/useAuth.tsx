@@ -26,12 +26,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    const storedToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     api.getMe()
       .then((data) => {
         if (!cancelled) {
           setState({
             user: data.user as AuthUser,
-            token: null,
+            token: storedToken,
             ready: true,
           });
         }
@@ -45,10 +46,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback((data: LoginResponse) => {
+    if (typeof window !== "undefined" && data.token) {
+      localStorage.setItem("token", data.token);
+    }
     setState({ user: data.user, token: data.token || null, ready: true });
   }, []);
 
   const logout = useCallback(() => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("token");
+    }
     api.logout().catch(() => {});
     setState({ user: null, token: null, ready: true });
   }, []);

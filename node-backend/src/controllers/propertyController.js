@@ -1,5 +1,7 @@
 const propertyModel = require('../models/propertyModel');
 const crypto = require('crypto');
+const { pool } = require('../config/database');
+const NotificationService = require('../services/notificationService');
 
 const PROTECTED_FIELDS = [
   'landlord_id', 'ownerId', 'approvalStatus', 'verified',
@@ -55,6 +57,16 @@ async function createProperty(req, res, next) {
       photos: photos || null,
     });
 
+    await NotificationService.notify({
+      recipientRole: 'admin',
+      senderUserId: req.userId,
+      type: 'property_submitted',
+      title: 'New Property Submitted',
+      message: `A new property "${title}" has been submitted for review.`,
+      referenceType: 'property',
+      referenceId: property.id
+    });
+
     res.status(201).json(property);
   } catch (err) {
     next(err);
@@ -77,6 +89,27 @@ async function updateProperty(req, res, next) {
     }
 
     const updated = await propertyModel.update(req.params.id, safeBody);
+
+    try {
+      const [activeBookings] = await pool.query(
+        "SELECT id, guest_id FROM bookings WHERE property_id = ? AND status IN ('pending', 'confirmed')",
+        [req.params.id]
+      );
+      for (const booking of activeBookings) {
+        await NotificationService.notify({
+          recipientUserId: booking.guest_id,
+          senderUserId: req.userId,
+          type: 'property_updated',
+          title: 'Property Updated',
+          message: `The property "${existing.title}" has been updated, affecting your active booking.`,
+          referenceType: 'booking',
+          referenceId: booking.id
+        });
+      }
+    } catch (bookingErr) {
+      console.error('Failed to notify tenants of property update:', bookingErr.message);
+    }
+
     res.json(updated);
   } catch (err) {
     next(err);
@@ -130,6 +163,29 @@ async function adminUpdatePropertyStatus(req, res, next) {
     }
 
     const updated = await propertyModel.update(id, { status });
+
+    if (status === 'Active') {
+      await NotificationService.notify({
+        recipientUserId: existing.landlord_id,
+        senderUserId: req.userId,
+        type: 'property_approved',
+        title: 'Property Approved',
+        message: `Your property "${existing.title}" has been approved.`,
+        referenceType: 'property',
+        referenceId: existing.id
+      });
+    } else if (status === 'Rejected') {
+      await NotificationService.notify({
+        recipientUserId: existing.landlord_id,
+        senderUserId: req.userId,
+        type: 'property_rejected',
+        title: 'Property Rejected',
+        message: `Your property "${existing.title}" has been rejected.`,
+        referenceType: 'property',
+        referenceId: existing.id
+      });
+    }
+
     res.json(updated);
   } catch (err) {
     next(err);
