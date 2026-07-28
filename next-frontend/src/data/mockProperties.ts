@@ -13,6 +13,7 @@ export const mockProperties: Property[] = [
     rating: 4.8,
     price: 3200,
     bookings: 2,
+    reviewCount: 5,
   },
   {
     id: "2",
@@ -26,6 +27,7 @@ export const mockProperties: Property[] = [
     rating: 4.6,
     price: 2100,
     bookings: 1,
+    reviewCount: 3,
   },
   {
     id: "3",
@@ -39,6 +41,7 @@ export const mockProperties: Property[] = [
     rating: 4.7,
     price: 4800,
     bookings: 1,
+    reviewCount: 8,
   },
   {
     id: "4",
@@ -52,6 +55,7 @@ export const mockProperties: Property[] = [
     rating: 4.9,
     price: 7500,
     bookings: 3,
+    reviewCount: 12,
   },
   {
     id: "5",
@@ -65,6 +69,7 @@ export const mockProperties: Property[] = [
     rating: 4.5,
     price: 5200,
     bookings: 4,
+    reviewCount: 6,
   },
   {
     id: "6",
@@ -78,5 +83,6 @@ export const mockProperties: Property[] = [
     rating: 4.3,
     price: 4600,
     bookings: 0,
+    reviewCount: 2,
   },
 ];

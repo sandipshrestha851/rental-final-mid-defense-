@@ -55,13 +55,14 @@ export default function AddPropertyModal({
         id: crypto.randomUUID(),
         title: form.title || "Untitled property",
         location: location || "Location not set",
-        imageUrl: form.photos[0] || PLACEHOLDER_IMAGE,
+        imageUrl: '',
         status: "Pending",
         beds: form.beds,
         baths: form.baths,
         rating: 0,
         price: form.price,
         bookings: 0,
+        reviewCount: 0,
         description: form.description,
         category: form.category || undefined,
         propertyType: form.propertyType || undefined,
@@ -76,7 +77,7 @@ export default function AddPropertyModal({
         photos: form.photos,
       };
 
-      onSubmit(newProperty);
+      onSubmit({ ...newProperty, _photoFiles: form.photoFiles } as Property & { _photoFiles: File[] });
       handleClose();
       return;
     }

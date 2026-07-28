@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  Search, Building2, House, Castle, Hotel, ArrowRight, Loader2
+  Search, Building2, House, Castle, Hotel, ArrowRight, Loader2, Clock, Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +27,13 @@ export default function TenantDashboard() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [recentlyViewed, setRecentlyViewed] = useState<Property[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    api.getWishlistIds().then(setFavorites).catch(() => {});
+    api.getRecentlyViewed().then(setRecentlyViewed).catch(() => {});
+  }, [user]);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,11 +45,7 @@ export default function TenantDashboard() {
       })
       .catch((err) => {
         if (!cancelled) {
-          setError(
-            err instanceof ApiError
-              ? err.message
-              : "Failed to load properties."
-          );
+          setError(err instanceof ApiError ? err.message : "Failed to load properties.");
         }
       })
       .finally(() => {
@@ -71,7 +74,6 @@ export default function TenantDashboard() {
     <div className="flex flex-col min-h-0">
       <TopBar role="Tenant" page="Dashboard" searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
-      {/* Content */}
       <div className="flex-1 p-8 overflow-y-auto space-y-10">
       {loading && (
         <div className="flex items-center justify-center py-24 text-gray-400">
@@ -88,7 +90,6 @@ export default function TenantDashboard() {
 
       {!loading && !error && (
       <>
-      {/* Hero Search */}
       <div className="relative">
         <div className="bg-linear-to-br from-[#5E35B1] to-indigo-700 rounded-2xl p-8 md:p-12 text-white overflow-hidden">
           <div className="absolute inset-0 opacity-10">
@@ -141,6 +142,53 @@ export default function TenantDashboard() {
         </div>
       </div>
 
+      {/* Recently Viewed */}
+      {recentlyViewed.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="w-5 h-5 text-[#5E35B1]" />
+            <h2 className="text-xl font-bold text-[#1A1A2E]">Recently Viewed</h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recentlyViewed.map((property, i) => (
+              <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
+                <PropertyCard2
+                  property={property}
+                  onFavorite={toggleFavorite}
+                  favorited={favorites.includes(property.id)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Wishlist */}
+      {favorites.length > 0 && (
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <Heart className="w-5 h-5 text-red-500" />
+            <h2 className="text-xl font-bold text-[#1A1A2E]">Your Wishlist</h2>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {properties.filter(p => favorites.includes(p.id)).slice(0, 3).map((property, i) => (
+              <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
+                <PropertyCard2
+                  property={property}
+                  onFavorite={toggleFavorite}
+                  favorited={true}
+                />
+              </div>
+            ))}
+            {favorites.length > 3 && (
+              <Link href="/tenant/wishlist" className="flex items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 p-6 text-gray-400 hover:border-violet-200 hover:text-[#5E35B1] transition-colors">
+                <span className="font-medium">View all {favorites.length} favorites</span>
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Featured */}
       {filteredProperties.length > 0 && (
         <>
@@ -153,11 +201,7 @@ export default function TenantDashboard() {
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-3">
               {featured.map((property, i) => (
-                <div
-                  key={property.id}
-                  className="animate-in fade-in slide-in-from-bottom-4"
-                  style={{ animationDelay: `${i * 100}ms` }}
-                >
+                <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
                   <PropertyCard2
                     property={property}
                     onFavorite={toggleFavorite}
@@ -168,16 +212,10 @@ export default function TenantDashboard() {
             </div>
           </div>
 
-          {/* Popular */}
           <div>
-            <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">Popular Right Now</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {popular.map((property, i) => (
-                <div
-                  key={property.id}
-                  className="animate-in fade-in slide-in-from-bottom-4"
-                  style={{ animationDelay: `${0.3 + i * 0.1}s` }}
-                >
+                <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>
                   <PropertyCard2
                     property={property}
                     onFavorite={toggleFavorite}

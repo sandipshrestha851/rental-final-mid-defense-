@@ -1,12 +1,35 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const userModel = require('../models/userModel');
-const { signToken, signAdminToken } = require('../utils/jwt');
+const { signAccessToken, signRefreshToken, signAdminAccessToken, signAdminRefreshToken } = require('../utils/jwt');
+const { pool } = require('../config/database');
+const { logger } = require('../utils/logger');
 
 function orNull(value) {
   if (value === undefined || value === null) return null;
   const str = String(value).trim();
   return str.length ? str : null;
 }
+
+async function storeRefreshToken(table, idColumn, userId, token) {
+  const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  await pool.query(
+    `INSERT INTO ${table} (${idColumn}, token_hash, expires_at) VALUES (?, ?, ?)`,
+    [userId, tokenHash, expiresAt]
+  );
+}
+
+async function clearRefreshTokens(table, idColumn, userId) {
+  await pool.query(`DELETE FROM ${table} WHERE ${idColumn} = ?`, [userId]);
+}
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+  path: '/',
+};
 
 const authService = {
   async register(data) {
@@ -32,7 +55,7 @@ const authService = {
       throw err;
     }
 
-    const password_hash = await bcrypt.hash(password, 10);
+    const password_hash = await bcrypt.hash(password, 12);
     await userModel.create({
       full_name, email, phone, gender, date_of_birth, bio, role, password_hash,
     });
@@ -55,9 +78,15 @@ const authService = {
       throw err;
     }
 
-    const token = signToken(user);
+    const accessToken = signAccessToken(user);
+    const refreshToken = signRefreshToken(user);
+
+    await clearRefreshTokens('refresh_tokens', 'user_id', user.id);
+    await storeRefreshToken('refresh_tokens', 'user_id', user.id, refreshToken);
+
     return {
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: user.id,
         full_name: user.full_name,
@@ -82,10 +111,15 @@ const authService = {
       throw err;
     }
 
-    const token = signAdminToken(admin);
+    const accessToken = signAdminAccessToken(admin);
+    const refreshToken = signAdminRefreshToken(admin);
+
+    await clearRefreshTokens('admin_refresh_tokens', 'admin_id', admin.id);
+    await storeRefreshToken('admin_refresh_tokens', 'admin_id', admin.id, refreshToken);
 
     return {
-      token,
+      accessToken,
+      refreshToken,
       user: {
         id: admin.id,
         full_name: 'System Admin',
@@ -93,6 +127,78 @@ const authService = {
         role: 'admin',
       },
     };
+  },
+
+  async refresh(refreshToken) {
+    const { verifyRefreshToken } = require('../utils/jwt');
+    const decoded = verifyRefreshToken(refreshToken);
+    const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+
+    let table = 'refresh_tokens';
+    let idColumn = 'user_id';
+    if (decoded.role === 'admin') {
+      table = 'admin_refresh_tokens';
+      idColumn = 'admin_id';
+    }
+
+    const [rows] = await pool.query(
+      `SELECT * FROM ${table} WHERE ${idColumn} = ? AND token_hash = ? AND expires_at > NOW()`,
+      [decoded.user_id, tokenHash]
+    );
+
+    if (rows.length === 0) {
+      const err = new Error('Invalid or expired refresh token');
+      err.status = 401;
+      throw err;
+    }
+
+    const newAccessToken = signAccessToken(decoded);
+    return { accessToken: newAccessToken };
+  },
+
+  async logout(userId, role, refreshToken) {
+    try {
+      if (role === 'admin') {
+        if (refreshToken) {
+          const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+          await pool.query(
+            'DELETE FROM admin_refresh_tokens WHERE admin_id = ? AND token_hash = ?',
+            [userId, tokenHash]
+          );
+        }
+        await clearRefreshTokens('admin_refresh_tokens', 'admin_id', userId);
+      } else {
+        if (refreshToken) {
+          const tokenHash = crypto.createHash('sha256').update(refreshToken).digest('hex');
+          await pool.query(
+            'DELETE FROM refresh_tokens WHERE user_id = ? AND token_hash = ?',
+            [userId, tokenHash]
+          );
+        }
+        await clearRefreshTokens('refresh_tokens', 'user_id', userId);
+      }
+    } catch (err) {
+      logger.error('Logout error:', err.message);
+    }
+  },
+
+  setAuthCookies(res, accessToken, refreshToken, user) {
+    res.cookie('access_token', accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+    res.cookie('refresh_token', refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+    const { setCsrfCookie } = require('../middleware/csrf');
+    setCsrfCookie(null, res);
+  },
+
+  clearAuthCookies(res) {
+    res.clearCookie('access_token', { ...cookieOptions });
+    res.clearCookie('refresh_token', { ...cookieOptions });
+    res.clearCookie('csrf_token', { httpOnly: false, sameSite: 'strict', path: '/' });
   },
 };
 

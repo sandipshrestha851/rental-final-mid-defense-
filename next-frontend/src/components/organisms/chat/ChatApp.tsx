@@ -44,34 +44,33 @@ export function ChatApp({
 
   // Redirect to login once we know there's no session.
   useEffect(() => {
-    if (ready && (!token || !currentUser)) {
+    if (ready && !token && !currentUser) {
       router.push(loginPath);
     }
   }, [ready, token, currentUser, router, loginPath]);
 
   // Load the user list once authenticated.
   useEffect(() => {
-    if (!token) return;
+    if (!currentUser) return;
     api
-      .getUsers(token)
+      .getUsers()
       .then(setUsers)
       .catch((err) => console.error("Failed to fetch users:", err));
-  }, [token]);
+  }, [currentUser]);
 
   const handleSelectUser = useCallback(
     async (user: User) => {
       setSelectedUser(user);
       setMessages([]);
       if (window.innerWidth < 768) setSidebarOpen(false);
-      if (!token) return;
       try {
-        const history = await api.getMessages(token, user.id);
+        const history = await api.getMessages(user.id);
         setMessages(history);
       } catch (err) {
         console.error("Failed to fetch messages:", err);
       }
     },
-    [token, setMessages]
+    [setMessages]
   );
 
   const handleSend = useCallback(() => {

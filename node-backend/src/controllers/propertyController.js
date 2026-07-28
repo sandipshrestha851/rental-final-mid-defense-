@@ -1,6 +1,12 @@
 const propertyModel = require('../models/propertyModel');
 const crypto = require('crypto');
 
+const PROTECTED_FIELDS = [
+  'landlord_id', 'ownerId', 'approvalStatus', 'verified',
+  'bookingCount', 'createdBy', 'adminNotes',
+  'rating', 'review_count',
+];
+
 async function getMyProperties(req, res, next) {
   try {
     const properties = await propertyModel.findByLandlordId(req.userId);
@@ -16,7 +22,7 @@ async function createProperty(req, res, next) {
       title, description, location, category, property_type,
       address, city, state, zip_code, country,
       image_url, status, beds, baths, guests, sqft,
-      rating, price, bookings, amenities, photos,
+      rating, price, amenities, photos,
     } = req.body;
 
     if (!title || price == null) {
@@ -44,7 +50,7 @@ async function createProperty(req, res, next) {
       sqft,
       rating: rating || 0,
       price,
-      bookings: bookings || 0,
+      bookings: 0,
       amenities: amenities || null,
       photos: photos || null,
     });
@@ -64,7 +70,13 @@ async function updateProperty(req, res, next) {
     if (existing.landlord_id !== req.userId) {
       return res.status(403).json({ message: 'Not authorized' });
     }
-    const updated = await propertyModel.update(req.params.id, req.body);
+
+    const safeBody = { ...req.body };
+    for (const field of PROTECTED_FIELDS) {
+      delete safeBody[field];
+    }
+
+    const updated = await propertyModel.update(req.params.id, safeBody);
     res.json(updated);
   } catch (err) {
     next(err);
@@ -86,8 +98,6 @@ async function deleteProperty(req, res, next) {
     next(err);
   }
 }
-
-// ── Admin endpoints ──────────────────────────────────────────────────
 
 async function getAllProperties(req, res, next) {
   try {
@@ -126,8 +136,6 @@ async function adminUpdatePropertyStatus(req, res, next) {
   }
 }
 
-// ── Public endpoint ─────────────────────────────────────────────────
-
 async function getActiveProperties(req, res, next) {
   try {
     const properties = await propertyModel.findAllActive();
@@ -137,8 +145,127 @@ async function getActiveProperties(req, res, next) {
   }
 }
 
+async function getActivePropertyById(req, res, next) {
+  try {
+    const property = await propertyModel.findById(req.params.id);
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+    if (property.status !== 'Active') {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+    const images = await propertyModel.getImages(req.params.id);
+    property.images = images;
+    res.json(property);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getPropertyById(req, res, next) {
+  try {
+    const property = await propertyModel.findById(req.params.id);
+    if (!property) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+    if (property.landlord_id !== req.userId && req.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+    const images = await propertyModel.getImages(req.params.id);
+    property.images = images;
+    res.json(property);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function searchProperties(req, res, next) {
+  try {
+    const {
+      keyword, minPrice, maxPrice, category, propertyType,
+      beds, baths, minGuests, amenities, city, sort, page, pageSize,
+    } = req.query;
+    const result = await propertyModel.searchActive({
+      keyword, minPrice, maxPrice, category, propertyType,
+      beds, baths, minGuests,
+      amenities: amenities ? (Array.isArray(amenities) ? amenities : [amenities]) : undefined,
+      city, sort, page, pageSize,
+    });
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getSimilarProperties(req, res, next) {
+  try {
+    const property = await propertyModel.findById(req.params.id);
+    if (!property) return res.status(404).json({ message: 'Property not found' });
+    const similar = await propertyModel.findSimilar(property, parseInt(req.query.limit) || 6);
+    res.json(similar);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getShareInfo(req, res, next) {
+  try {
+    const property = await propertyModel.findById(req.params.id);
+    if (!property) return res.status(404).json({ message: 'Property not found' });
+    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    res.json({
+      url: `${baseUrl}/property/${property.id}`,
+      title: property.title,
+      description: property.description ? property.description.substring(0, 200) : `Rental in ${property.location || property.city}`,
+      image: property.image_url ? `${baseUrl}${property.image_url}` : '',
+      price: property.price,
+      location: property.location || property.city || '',
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getPropertyImages(req, res, next) {
+  try {
+    const property = await propertyModel.findById(req.params.id);
+    if (!property) return res.status(404).json({ message: 'Property not found' });
+    const images = await propertyModel.getImages(req.params.id);
+    res.json(images);
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function trackView(req, res, next) {
+  try {
+    const dashboardModel = require('../models/dashboardModel');
+    await dashboardModel.trackPropertyView(req.params.id);
+    res.status(200).json({ message: 'View tracked' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function updatePropertyStatus(req, res, next) {
+  try {
+    const existing = await propertyModel.findById(req.params.id);
+    if (!existing) return res.status(404).json({ message: 'Property not found' });
+    if (existing.landlord_id !== req.userId) return res.status(403).json({ message: 'Not authorized' });
+    const { status } = req.body;
+    const allowed = ['Active', 'Draft'];
+    if (!allowed.includes(status)) return res.status(400).json({ message: 'Invalid status' });
+    const updated = await propertyModel.update(req.params.id, { status });
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   getMyProperties, createProperty, updateProperty, deleteProperty,
   getAllProperties, adminUpdatePropertyStatus,
-  getActiveProperties,
+  getActiveProperties, getActivePropertyById, getPropertyById,
+  searchProperties, getSimilarProperties, getShareInfo,
+  getPropertyImages, updatePropertyStatus, trackView,
 };

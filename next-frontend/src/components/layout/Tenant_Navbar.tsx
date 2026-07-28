@@ -13,7 +13,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 type SideNavbarProps = {
   navto: string;
-  setNavto: React.Dispatch<React.SetStateAction<string>>;
+  setNavto: ((value: string) => void) | React.Dispatch<React.SetStateAction<string>>;
 };
 
 const Tenant_Navbar = ({ navto, setNavto }: SideNavbarProps) => {

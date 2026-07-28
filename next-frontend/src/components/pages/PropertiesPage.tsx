@@ -120,7 +120,6 @@ interface PropertiesPageProps {
 export default function PropertiesPage({
   onSelectProperty,
 }: PropertiesPageProps) {
-  const { token } = useAuth();
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
@@ -128,17 +127,16 @@ export default function PropertiesPage({
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const fetchProperties = useCallback(async () => {
-    if (!token) return;
     try {
       setLoading(true);
-      const data = await api.getMyProperties(token);
+      const data = await api.getMyProperties();
       setProperties(data);
     } catch {
       setProperties([]);
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchProperties();
@@ -154,10 +152,22 @@ export default function PropertiesPage({
     });
   }, [properties, query, status]);
 
-  async function handleAddProperty(newProperty: Property) {
-    if (!token) return;
+  async function handleAddProperty(newProperty: Property & { _photoFiles?: File[] }) {
     try {
-      const saved = await api.createProperty(token, newProperty);
+      const { _photoFiles, ...propData } = newProperty;
+      const saved = await api.createProperty(propData);
+      if (_photoFiles && _photoFiles.length > 0) {
+        try {
+          const uploadResult = await api.uploadPropertyImages(saved.id, _photoFiles);
+          console.log(`Uploaded ${uploadResult.images.length} image(s)`);
+          const updated = await api.getLandlordPropertyById(saved.id);
+          setProperties((prev) => [updated, ...prev]);
+          return;
+        } catch (uploadErr) {
+          const msg = uploadErr instanceof Error ? uploadErr.message : 'Upload failed';
+          console.error('Image upload error:', msg);
+        }
+      }
       setProperties((prev) => [saved, ...prev]);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Unknown error";

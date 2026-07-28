@@ -77,7 +77,7 @@ const PAGE_SIZE = 8;
 // ─────────────────────────────────────────────────────────────────────────
 
 export function PropertiesAdmin() {
-  const { token, ready } = useAuth();
+  const { ready } = useAuth();
 
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
@@ -92,18 +92,13 @@ export function PropertiesAdmin() {
 
   useEffect(() => {
     if (!ready) return;
-    if (!token) {
-      setError("You need to be signed in as an admin to view properties.");
-      setLoading(false);
-      return;
-    }
 
     let cancelled = false;
     setLoading(true);
     setError(null);
 
     api
-      .getAllProperties(token)
+      .getAllProperties()
       .then((rows) => {
         if (!cancelled) setProperties(rows);
       })
@@ -123,13 +118,12 @@ export function PropertiesAdmin() {
     return () => {
       cancelled = true;
     };
-  }, [ready, token]);
+  }, [ready]);
 
   const updateStatus = async (property: Property, status: PropertyStatus) => {
-    if (!token) return;
     setActingId(property.id);
     try {
-      const updated = await api.setPropertyStatus(token, property, status);
+      const updated = await api.setPropertyStatus(property, status);
       setProperties((prev) => prev.map((p) => (p.id === property.id ? updated : p)));
       setSelected((prev) => (prev && prev.id === property.id ? updated : prev));
     } catch (err) {
@@ -179,7 +173,7 @@ export function PropertiesAdmin() {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-violet-600 to-indigo-500 bg-clip-text text-transparent">Properties</h1>
+        <h1 className="text-3xl font-black tracking-tight bg-linear-to-r from-violet-600 to-indigo-500 bg-clip-text text-transparent">Properties</h1>
         <p className="text-sm text-gray-500 font-medium flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-teal-400 inline-block"></span>
           Review property listings submitted by landlords and approve or reject them.

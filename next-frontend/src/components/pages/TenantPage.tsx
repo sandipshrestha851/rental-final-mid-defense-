@@ -12,7 +12,7 @@ import MyBookings from "./MyBookings"
 import { DashboardMain } from "@/components/organisms/dashboard/DashboardMain";
 import { ChatApp } from "@/components/organisms/chat/ChatApp";
 
-const LandLordPage = () => {
+const TenantPage = () => {
     const [navto, setNavto] = useState<string>("dashboard")
     const router = useRouter()
     return (
@@ -31,4 +31,4 @@ const LandLordPage = () => {
     )
 }
 
-export default LandLordPage
+export default TenantPage

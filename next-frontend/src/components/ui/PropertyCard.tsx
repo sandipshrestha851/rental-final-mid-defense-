@@ -1,7 +1,10 @@
-"use-client";
+"use client";
 import { MapPin, BedDouble, Bath, Star } from "lucide-react";
 import { Property } from "../../lib/types";
 import StatusBadge from "../ui/StatusBadge";
+
+const PLACEHOLDER_IMAGE =
+  "https://images.unsplash.com/photo-1560184897-ae75f418493e?w=600&auto=format&fit=crop&q=60";
 
 interface PropertyCardProps {
   property: Property;
@@ -30,10 +33,11 @@ export default function PropertyCard({ property, onClick }: PropertyCardProps) {
       {/* Image */}
       <div className="relative h-44 w-full overflow-hidden bg-gray-100">
         <img
-          src={imageUrl}
+          src={imageUrl || PLACEHOLDER_IMAGE}
           alt={title}
           className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
           loading="lazy"
+          onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE; }}
         />
         <StatusBadge status={status} />
       </div>

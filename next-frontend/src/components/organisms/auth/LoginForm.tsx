@@ -21,9 +21,10 @@ export function LoginForm() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // If a session already exists, skip the login screen.
   useEffect(() => {
-    if (ready && token) router.push("/chat");
+    if (ready && token) {
+      router.push("/chat");
+    }
   }, [ready, token, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -5,53 +5,36 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { api } from "@/lib/api";
 import type { User } from "@/lib/types";
-import { ChatApp } from "@/components/organisms/chat/ChatApp";
 import {
   Users,
   Shield,
-  Search,
-  CheckCircle,
-  HelpCircle,
   Database,
   Calendar,
   Activity,
   Building2,
-  Bell,
   Info,
   CheckCircle2,
-  XCircle,
-  Sun,
-  Moon
+  XCircle
 } from "lucide-react";
 
 const AdminDashboard = () => {
-  const [navto, setNavto] = useState<string>("dashboard");
   const router = useRouter();
-  const { user, token, ready } = useAuth();
+  const { user, ready } = useAuth();
 
   // Dashboard logic & statistics states
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentTime, setCurrentTime] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [toasts, setToasts] = useState<{ id: string; message: string; type: "success" | "error" | "info" }[]>([]);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   // Interactive Chart Hover States
   const [hoveredRevenueIndex, setHoveredRevenueIndex] = useState<number | null>(null);
   const [hoveredDonutIndex, setHoveredDonutIndex] = useState<number | null>(null);
 
-  // Mock Notifications
-  const [notifications, setNotifications] = useState([
-    { id: 1, text: "Property 'Desert Modern Oasis' pending approval", time: "Just now", read: false },
-    { id: 2, text: "New tenant user registered: Ryan Mitchell", time: "2 hours ago", read: false },
-    { id: 3, text: "Booking payment processed successfully", time: "5 hours ago", read: true }
-  ]);
-
   // Add toast helper
   const addToast = (message: string, type: "success" | "error" | "info" = "success") => {
-    const id = Date.now().toString();
+    const id = crypto.randomUUID();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
@@ -80,9 +63,9 @@ const AdminDashboard = () => {
 
   // Fetch users when authenticated
   useEffect(() => {
-    if (ready && user && user.role === "admin" && token) {
+    if (ready && user && user.role === "admin") {
       setLoadingUsers(true);
-      api.getUsers(token)
+      api.getUsers()
         .then((data) => {
           console.log(data)
           setUsers(data);
@@ -96,7 +79,7 @@ const AdminDashboard = () => {
           setLoadingUsers(false);
         });
     }
-  }, [ready, user, token]);
+  }, [ready, user]);
 
   // Stats calculation
   const totalUsers = users.length;
@@ -201,111 +184,9 @@ const AdminDashboard = () => {
       </div>
 
       {/* Right Content Main Container */}
-      <main className={`${navto === "messages" ? "bg-[#0f0f1a]" : ""
-        } flex-1 min-h-screen p-6 overflow-y-auto`}>
+      <main className="flex-1 min-h-screen p-6 overflow-y-auto">
 
-        {navto === "dashboard" && (
           <div className="space-y-6 animate-fadeIn text-left">
-
-            {/* Top Navigation / Breadcrumbs Header */}
-            <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
-              <div>
-                <div className="flex items-center gap-2 text-xs font-bold mb-1">
-                  <span className="text-[#7C4DFF] hover:underline cursor-pointer" onClick={() => setNavto("dashboard")}>Admin</span>
-                </div>
-                <h1 className={`text-2xl font-black tracking-tight ${darkMode ? 'text-white' : 'text-slate-800'}`}>Admin Dashboard</h1>
-                <p className="text-sm text-slate-400 font-semibold mt-0.5">Platform overview and analytics</p>
-              </div>
-
-              {/* Right widgets header */}
-              <div className="flex flex-wrap items-center gap-3 ml-auto sm:ml-0">
-
-                {/* Search Bar placeholder */}
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Search className="w-4 h-4" />
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Search properties, bookings..."
-                    className={`pl-9 pr-4 py-2 border rounded-xl text-sm outline-none transition-colors w-48 sm:w-60 ${darkMode
-                        ? "bg-slate-900 border-slate-700 text-white focus:border-violet-500"
-                        : "bg-white border-slate-200 text-slate-700 focus:border-violet-500"
-                      }`}
-                  />
-                </div>
-
-                {/* Dark Mode Switcher */}
-                <button
-                  onClick={() => {
-                    setDarkMode(!darkMode);
-                    addToast(`Theme style toggled`, "info");
-                  }}
-                  className={`p-2 rounded-lg cursor-pointer transition-colors ${darkMode ? "hover:bg-slate-800 text-amber-400" : "hover:bg-slate-100 text-slate-500"
-                    }`}
-                  title="Toggle Light/Dark Theme"
-                >
-                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </button>
-
-                {/* Notification Dropdown Trigger */}
-                <div className="relative">
-                  <button
-                    onClick={() => setNotificationsOpen(!notificationsOpen)}
-                    className={`p-2 rounded-xl border relative cursor-pointer transition-colors ${darkMode ? "bg-slate-800/40 border-slate-700 text-slate-300 hover:bg-slate-700/50" : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
-                      }`}
-                  >
-                    <Bell className="w-5 h-5" />
-                    {notifications.some(n => !n.read) && (
-                      <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
-                    )}
-                  </button>
-
-                  {notificationsOpen && (
-                    <>
-                      <div className="fixed inset-0 z-30" onClick={() => setNotificationsOpen(false)}></div>
-                      <div className={`absolute right-0 mt-3 w-80 rounded-2xl shadow-2xl border p-4 z-40 animate-fadeIn ${darkMode ? "bg-[#16162d] border-slate-800 text-white" : "bg-white border-slate-100 text-slate-800"
-                        }`}>
-                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
-                          <h4 className="text-xs font-black uppercase tracking-wider">Notifications</h4>
-                          <button
-                            onClick={() => {
-                              setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-                              addToast("All notifications cleared.", "success");
-                            }}
-                            className="text-xs font-bold text-violet-500 hover:underline"
-                          >
-                            Mark Read
-                          </button>
-                        </div>
-                        <div className="space-y-2 max-h-52 overflow-y-auto">
-                          {notifications.map(n => (
-                            <div
-                              key={n.id}
-                              className={`p-2.5 rounded-lg text-left text-sm border ${n.read
-                                  ? "bg-transparent border-transparent text-slate-400"
-                                  : darkMode
-                                    ? "bg-slate-800/40 border-slate-800 text-slate-200"
-                                    : "bg-slate-50 border-slate-100 text-slate-800"
-                                }`}
-                            >
-                              <p className="font-semibold">{n.text}</p>
-                              <span className="text-[11px] text-slate-400 mt-1 block">{n.time}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Profile Pic Indicator */}
-                <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center text-xs font-bold text-white uppercase shadow-md select-none">
-                  SA
-                </div>
-
-              </div>
-            </header>
 
             {/* Metrics cards row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -686,7 +567,6 @@ const AdminDashboard = () => {
             </div>
 
           </div>
-        )}
       </main>
     </div>
   );

@@ -1,5 +1,10 @@
 import MyBookings from "@/components/pages/MyBookings";
+import TenantLayout from "@/components/layout/TenantLayout";
 
 export default function Page() {
-  return <MyBookings />;
+  return (
+    <TenantLayout>
+      <MyBookings />
+    </TenantLayout>
+  );
 }

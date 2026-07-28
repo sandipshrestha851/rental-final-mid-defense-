@@ -53,12 +53,22 @@ export default function AmenitiesPhotosStep({
 
   function handleFiles(files: FileList | null) {
     if (!files) return;
-    const urls = Array.from(files).map((file) => URL.createObjectURL(file));
-    onChange({ photos: [...data.photos, ...urls] });
+    const newFiles = Array.from(files);
+    const urls = newFiles.map((file) => URL.createObjectURL(file));
+    onChange({
+      photos: [...data.photos, ...urls],
+      photoFiles: [...data.photoFiles, ...newFiles],
+    });
   }
 
   function removePhoto(url: string) {
-    onChange({ photos: data.photos.filter((p) => p !== url) });
+    const idx = data.photos.indexOf(url);
+    if (idx >= 0) {
+      const newPhotoFiles = [...data.photoFiles];
+      newPhotoFiles.splice(idx, 1);
+      const newPhotos = data.photos.filter((p) => p !== url);
+      onChange({ photos: newPhotos, photoFiles: newPhotoFiles });
+    }
   }
 
   return (
