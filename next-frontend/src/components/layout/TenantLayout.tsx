@@ -27,7 +27,7 @@ export default function TenantLayout({ children }: { children: React.ReactNode }
   return (
     <div className="flex">
       <Tenant_Navbar navto={getNavto(pathname)} setNavto={setNavto} />
-      <main className="ml-[15%] w-[85%] min-h-screen">
+      <main className="ml-0 lg:ml-[15%] w-full lg:w-[85%] min-h-screen">
         {children}
       </main>
     </div>

@@ -25,8 +25,8 @@ export default function TopBar({ role, page, searchQuery, onSearchChange }: TopB
         <span className="text-[#5b3fd6] font-semibold">{page}</span>
       </div>
       <div className="flex items-center gap-5">
-        <div className="flex items-center gap-2 bg-[#f2f1f8] rounded-xl px-4 py-2 text-[#9997ad] text-sm w-80">
-          <Search className="w-4 h-4" />
+        <div className="flex items-center gap-2 bg-[#f2f1f8] rounded-xl px-4 py-2 text-[#9997ad] text-sm w-full max-w-80">
+          <Search className="w-4 h-4 shrink-0" />
           <input
             value={searchQuery || ""}
             onChange={(e) => onSearchChange?.(e.target.value)}

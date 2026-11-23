@@ -32,7 +32,14 @@ export default function TenantDashboard() {
   useEffect(() => {
     if (!user) return;
     api.getWishlistIds().then(setFavorites).catch(() => {});
-    api.getRecentlyViewed().then(setRecentlyViewed).catch(() => {});
+    api.getRecentlyViewed().then((items) => {
+      const seen = new Set<string>();
+      setRecentlyViewed(items.filter((p) => {
+        const dup = seen.has(p.id);
+        seen.add(p.id);
+        return !dup;
+      }));
+    }).catch(() => {});
   }, [user]);
 
   useEffect(() => {
@@ -92,7 +99,7 @@ export default function TenantDashboard() {
       <>
       <div className="relative">
         <div className="bg-linear-to-br from-[#5E35B1] to-indigo-700 rounded-2xl p-8 md:p-12 text-white overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
+          <div className="absolute inset-0 opacity-10 hidden sm:block">
             <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white" />
             <div className="absolute bottom-0 left-0 w-48 h-48 rounded-full bg-white" />
           </div>
@@ -122,7 +129,7 @@ export default function TenantDashboard() {
       {/* Categories */}
       <div>
         <h2 className="text-xl font-bold text-[#1A1A2E] mb-4">Browse by Type</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           {categories.map((cat, i) => (
             <Link key={cat.type} href="/tenant/search">
               <div
@@ -149,9 +156,9 @@ export default function TenantDashboard() {
             <Clock className="w-5 h-5 text-[#5E35B1]" />
             <h2 className="text-xl font-bold text-[#1A1A2E]">Recently Viewed</h2>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {recentlyViewed.map((property, i) => (
-              <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
+              <div key={`recent-${property.id}`} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
                 <PropertyCard2
                   property={property}
                   onFavorite={toggleFavorite}
@@ -170,9 +177,9 @@ export default function TenantDashboard() {
             <Heart className="w-5 h-5 text-red-500" />
             <h2 className="text-xl font-bold text-[#1A1A2E]">Your Wishlist</h2>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {properties.filter(p => favorites.includes(p.id)).slice(0, 3).map((property, i) => (
-              <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
+              <div key={`wish-${property.id}`} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
                 <PropertyCard2
                   property={property}
                   onFavorite={toggleFavorite}
@@ -199,9 +206,9 @@ export default function TenantDashboard() {
                 View All <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {featured.map((property, i) => (
-                <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
+                <div key={`feat-${property.id}`} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${i * 100}ms` }}>
                   <PropertyCard2
                     property={property}
                     onFavorite={toggleFavorite}
@@ -213,9 +220,9 @@ export default function TenantDashboard() {
           </div>
 
           <div>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {popular.map((property, i) => (
-                <div key={property.id} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>
+                <div key={`pop-${property.id}`} className="animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${0.3 + i * 0.1}s` }}>
                   <PropertyCard2
                     property={property}
                     onFavorite={toggleFavorite}

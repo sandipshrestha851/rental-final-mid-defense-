@@ -25,7 +25,7 @@ const AdminPage = ({ initialPage = "dashboard" }: { initialPage?: string }) => {
         navto={navto}
         setNavto={setNavto}
       />
-      <main className="ml-[15%] w-[85%] h-screen flex flex-col">
+      <main className="ml-0 lg:ml-[15%] w-full lg:w-[85%] h-screen flex flex-col">
         <AdminHeader page={pageLabel} />
         <div className="flex-1 overflow-y-auto p-6">
           {navto == "dashboard" && <AdminDashboard onNavigate={setNavto} />}

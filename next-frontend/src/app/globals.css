@@ -19,6 +19,10 @@
   scrollbar-color: #c7c2e6 transparent;
 }
 
+html, body {
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

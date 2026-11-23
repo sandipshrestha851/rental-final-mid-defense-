@@ -97,7 +97,7 @@ export function DashboardMain({ navto, role = "Landlord" }: { navto: string; rol
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:grid-cols-4">
             <SummaryCard icon={DollarSign} label="Total Revenue" value={summary ? `$${summary.totalRevenue.toLocaleString()}` : '-'} sub={summary ? `YTD: $${summary.ytdRevenue.toLocaleString()}` : undefined} loading={loading} error={!!error} color="bg-emerald-600" />
             <SummaryCard icon={TrendingUp} label="Monthly Earnings" value={summary && summary.monthlyEarnings?.length ? `$${summary.monthlyEarnings[summary.monthlyEarnings.length - 1].revenue.toLocaleString()}` : '-'} loading={loading} error={!!error} color="bg-blue-600" />
             <SummaryCard icon={BarChart3} label="Occupancy Rate" value={summary ? `${summary.overallOccupancyRate}%` : '-'} loading={loading} error={!!error} color="bg-violet-600" />

@@ -26,7 +26,7 @@ export function AuthHeader({
 /** Frosted-glass card that wraps the auth form body. */
 export function AuthCard({ children }: { children: React.ReactNode }) {
   return (
-    <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 p-8 rounded-3xl shadow-xl shadow-black/40">
+    <div className="bg-zinc-900/60 backdrop-blur-xl border border-zinc-800 p-6 sm:p-8 rounded-3xl shadow-xl shadow-black/40">
       {children}
     </div>
   );

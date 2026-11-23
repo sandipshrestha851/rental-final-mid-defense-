@@ -62,11 +62,11 @@ const PropertyCard2 = ({ property, onFavorite, favorited, showShare }: PropertyC
 
   return (
     <div
-      className="w-full max-w-sm overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
+      className="w-full overflow-hidden rounded-2xl bg-white shadow-md transition-all duration-300 hover:shadow-xl hover:-translate-y-2"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative h-66 w-full bg-gray-200 overflow-hidden">
+      <div className="relative h-48 sm:h-66 w-full bg-gray-200 overflow-hidden">
         <img
           className={`${isHovered ? "scale-110" : "scale-100"} h-full w-full transition-transform duration-300 object-cover`}
           src={imageUrl || PLACEHOLDER_IMAGE}

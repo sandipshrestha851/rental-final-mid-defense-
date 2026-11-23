@@ -27,14 +27,14 @@ export default function StatusFilter({ options, value, onChange }: StatusFilterP
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-40 items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-200"
+        className="flex w-full min-w-[140px] max-w-[160px] items-center justify-between rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-600 hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-violet-200"
       >
         {value}
         <ChevronDown className="h-4 w-4 text-gray-400" />
       </button>
 
       {open && (
-        <ul className="absolute right-0 z-10 mt-1 w-40 overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg">
+        <ul className="absolute right-0 z-10 mt-1 w-full min-w-[140px] overflow-hidden rounded-xl border border-gray-100 bg-white py-1 shadow-lg">
           {options.map((option) => (
             <li key={option}>
               <button

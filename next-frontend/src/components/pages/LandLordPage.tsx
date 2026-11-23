@@ -21,7 +21,7 @@ const LandLordPage = () => {
         navto={navto}
         setNavto={setNavto}
       />
-      <main className={`${navto == "messages" ? "bg-[#0f0f1a]" : ""} ml-[15%] w-[85%] h-screen p-4`}>
+      <main className={`${navto == "messages" ? "bg-[#0f0f1a]" : ""} ml-0 lg:ml-[15%] w-full lg:w-[85%] h-screen p-4`}>
         {navto == "dashboard" && <DashboardMain navto={navto} />}
         {navto == "properties" && <PropertiesPage />}
         {navto == "reservation" && <Reservations />}

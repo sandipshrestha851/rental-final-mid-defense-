@@ -185,7 +185,7 @@ export default function BookingPage() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-[1fr_360px] gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_360px] gap-8">
         <div className="space-y-6">
           {step === 'form' ? (
             <div className="bg-white rounded-2xl border border-gray-100 p-6 space-y-6">
@@ -243,7 +243,7 @@ export default function BookingPage() {
 
         <div className="h-fit">
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-            <img src={property.photos?.[0] || property.imageUrl || PLACEHOLDER_IMAGE} alt={property.title} className="w-full h-40 object-cover" onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE; }} />
+            <img src={property.photos?.[0] || property.imageUrl || PLACEHOLDER_IMAGE} alt={property.title} className="w-full h-48 sm:h-40 object-cover" onError={(e) => { e.currentTarget.src = PLACEHOLDER_IMAGE; }} />
             <div className="p-5">
               <h3 className="font-semibold text-[#1A1A2E]">{property.title}</h3>
               <div className="flex items-center gap-1 mt-1 text-sm text-gray-500"><MapPin className="w-3 h-3" />{property.city || property.location}</div>

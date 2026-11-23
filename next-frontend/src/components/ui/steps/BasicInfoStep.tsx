@@ -40,7 +40,7 @@ export default function BasicInfoStep({ data, onChange }: BasicInfoStepProps) {
 
       <div>
         <FieldLabel>Listing type</FieldLabel>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {PROPERTY_TYPES.map((value) => {
             const selected = data.propertyType === value;
             return (

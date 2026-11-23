@@ -23,8 +23,8 @@ export default function AdminHeader({ page, searchQuery, onSearchChange }: Admin
         <span className="text-violet-600 font-semibold">{page}</span>
       </div>
       <div className="flex items-center gap-5">
-        <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2 text-slate-400 text-sm w-80 border border-slate-200">
-          <Search className="w-4 h-4" />
+        <div className="flex items-center gap-2 bg-slate-50 rounded-xl px-4 py-2 text-slate-400 text-sm w-full max-w-80 border border-slate-200">
+          <Search className="w-4 h-4 shrink-0" />
           <input
             value={searchQuery || ""}
             onChange={(e) => onSearchChange?.(e.target.value)}

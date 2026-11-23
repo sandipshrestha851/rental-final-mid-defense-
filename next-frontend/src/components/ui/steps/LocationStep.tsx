@@ -19,7 +19,7 @@ export default function LocationStep({ data, onChange }: LocationStepProps) {
         required
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <TextField
           label="City"
           value={data.city}
@@ -35,7 +35,7 @@ export default function LocationStep({ data, onChange }: LocationStepProps) {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <TextField
           label="ZIP code"
           value={data.zipCode}
